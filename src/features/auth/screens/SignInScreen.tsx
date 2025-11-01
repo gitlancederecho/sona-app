@@ -47,3 +47,9 @@ export default function SignInScreen() {
     </AuthContainer>
   );
 }
+
+import { Link } from "expo-router";
+// ...
+<Link href="/(auth)/sign-up" style={{ marginTop: 16, alignSelf: "center" }}>
+  <Text>New here? Create an account</Text>
+</Link>
