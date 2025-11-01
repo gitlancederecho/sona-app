@@ -1,5 +1,5 @@
 // src/features/auth/screens/SignInScreen.tsx
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Pressable, Text, TextInput } from "react-native";
 import AuthContainer from "src/components/AuthContainer";
@@ -44,6 +44,11 @@ export default function SignInScreen() {
       >
         <Text style={{ fontSize: 18 }}>Sign in</Text>
       </Pressable>
+      
+    <Link href="/(auth)/sign-up" style={{ marginTop: 16, alignSelf: "center" }}>
+        <Text>New here? Create an account</Text>
+    </Link>
+
     </AuthContainer>
   );
 }
