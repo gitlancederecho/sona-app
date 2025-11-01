@@ -1,18 +1,12 @@
-import { Stack } from 'expo-router';
-import React from 'react';
+// app/_layout.tsx
+import { Stack } from "expo-router";
+import React from "react";
+import { AuthProvider } from "src/providers/AuthProvider";
 
 export default function RootLayout() {
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        contentStyle: { backgroundColor: '#111111' }
-      }}
-    >
-      {/* tabs navigator */}
-      <Stack.Screen name="(tabs)" />
-      {/* modal route (kept for now) */}
-      <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-    </Stack>
+    <AuthProvider>
+      <Stack screenOptions={{ headerShown: false }} />
+    </AuthProvider>
   );
 }
