@@ -39,6 +39,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+    useEffect(() => {
+    async function ensureProfile() {
+        const uid = session?.user?.id;
+        if (!uid) return;
+
+        const { data, error } = await supabase
+        .from("users")
+        .select("id")
+        .eq("id", uid)
+        .maybeSingle();
+
+        if (!error && !data) {
+        await supabase.from("users").insert({ id: uid, name: "", bio: "", avatar_url: null });
+        }
+    }
+    ensureProfile();
+    }, [session]);
+
+
   const value = useMemo<AuthContextType>(() => ({
     session,
     user: session?.user ?? null,
