@@ -1,17 +1,18 @@
+// babel.config.js
 module.exports = function (api) {
   api.cache(true);
   return {
-    presets: ['babel-preset-expo'],
+    presets: ["babel-preset-expo"], // includes expo-router automatically on SDK 50+
     plugins: [
       [
-        'module-resolver',
+        "module-resolver",
         {
+          root: ["./"],
           alias: {
-            '@': '.',      // ← map "@" to the project root so "@/components/..." works
-            src: './src'   // ← keep our nice "src/..." alias too
-          }
-        }
-      ]
-    ]
+            src: "./src", // so you can import from "src/..." cleanly
+          },
+        },
+      ],
+    ],
   };
 };
