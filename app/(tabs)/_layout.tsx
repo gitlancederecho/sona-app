@@ -1,13 +1,7 @@
-import { Stack } from 'expo-router';
-import React from 'react';
+// app/(tabs)/_layout.tsx
+import { Tabs } from "expo-router";
+import React from "react";
 
-export default function RootLayout() {
-  return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        contentStyle: { backgroundColor: '#111111' }
-      }}
-    />
-  );
+export default function TabsLayout() {
+  return <Tabs screenOptions={{ headerShown: false }} />;
 }
