@@ -1,7 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
+const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const key = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
-// One shared client used across the whole app
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+if (!url) throw new Error('Missing EXPO_PUBLIC_SUPABASE_URL. Create .env.local in project root.');
+if (!key) throw new Error('Missing EXPO_PUBLIC_SUPABASE_ANON_KEY. Add it to .env.local.');
+
+export const supabase = createClient(url, key);
