@@ -12,6 +12,7 @@ export default function ProfileScreen() {
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -44,84 +45,93 @@ export default function ProfileScreen() {
   }
 
   async function onPickAvatar() {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Permission needed", "Photo access is required to change your avatar.");
-      return;
-    }
-
-    const res = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 0.5,
-      aspect: [1, 1],
-    });
-    if (res.canceled || !res.assets?.length) return;
-
-    const asset = res.assets[0];
-    let fileUri = asset.uri;
-
+    if (isLoading) return;
+    setIsLoading(true);
     try {
-      const manipulated = await ImageManipulator.manipulateAsync(
-        fileUri,
-        [{ resize: { width: 512 } }],
-        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
-      );
-      fileUri = manipulated.uri;
-    } catch (e) {
-      console.warn("Image manipulate failed, using original:", e);
-    }
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission needed", "Photo access is required to change your avatar.");
+        return;
+      }
 
-    // get bytes from the local file (no blob in React Native)
-    let bytes: Uint8Array;
-    try {
-      const resp = await fetch(fileUri);
-      const arrayBuffer = await resp.arrayBuffer();
-      bytes = new Uint8Array(arrayBuffer);
+      const res = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.5,
+        aspect: [1, 1],
+      });
+      if (res.canceled || !res.assets?.length) return;
+
+      const asset = res.assets[0];
+      let fileUri = asset.uri;
+
+      try {
+        const manipulated = await ImageManipulator.manipulateAsync(
+          fileUri,
+          [{ resize: { width: 512 } }],
+          { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+        );
+        fileUri = manipulated.uri;
+      } catch (e) {
+        console.warn("Image manipulate failed, using original:", e);
+      }
+
+      // get bytes from the local file (no blob in React Native)
+      let bytes: Uint8Array;
+      try {
+        const resp = await fetch(fileUri);
+        const arrayBuffer = await resp.arrayBuffer();
+        bytes = new Uint8Array(arrayBuffer);
+      } catch (err) {
+        console.error("File fetch failed:", err);
+        Alert.alert(
+          "File error",
+          "Unable to access the selected image. Please pick another one from your library."
+        );
+        return;
+      }
+
+      // choose a stable path and content type
+      const path = `${user!.id}.jpg`;
+      const contentType = asset.mimeType || "image/jpeg";
+
+      const probe = await supabase.from("users").select("id").limit(1);
+      if (probe.error) console.warn("Probe error:", probe.error);
+      else console.warn("Probe OK");
+
+      // upload bytes to Supabase Storage
+      const { error: uploadErr } = await supabase.storage
+        .from("avatars")
+        .upload(path, bytes, { upsert: true, contentType });
+
+      if (uploadErr) {
+        Alert.alert("Upload failed", uploadErr.message);
+        return;
+      }
+
+      // get public URL (no error object returned here)
+      const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
+      const publicUrl = pub.publicUrl;
+
+      // save to profile
+      const { error: updateErr } = await supabase
+        .from("users")
+        .update({ avatar_url: publicUrl })
+        .eq("id", user!.id);
+
+      if (updateErr) {
+        Alert.alert("Save failed", updateErr.message);
+        return;
+      }
+
+      setAvatarUrl(publicUrl);
+
+      Alert.alert("Success", "Avatar updated!");
     } catch (err) {
-      console.error("File fetch failed:", err);
-      Alert.alert(
-        "File error",
-        "Unable to access the selected image. Please pick another one from your library."
-      );
-      return;
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
-
-    // choose a stable path and content type
-    const path = `${user!.id}.jpg`;
-    const contentType = asset.mimeType || "image/jpeg";
-
-    const probe = await supabase.from("users").select("id").limit(1);
-    if (probe.error) console.warn("Probe error:", probe.error);
-    else console.warn("Probe OK");
-
-    // upload bytes to Supabase Storage
-    const { error: uploadErr } = await supabase.storage
-      .from("avatars")
-      .upload(path, bytes, { upsert: true, contentType });
-
-    if (uploadErr) {
-      Alert.alert("Upload failed", uploadErr.message);
-      return;
-    }
-
-    // get public URL (no error object returned here)
-    const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
-    const publicUrl = pub.publicUrl;
-
-    // save to profile
-    const { error: updateErr } = await supabase
-      .from("users")
-      .update({ avatar_url: publicUrl })
-      .eq("id", user!.id);
-
-    if (updateErr) {
-      Alert.alert("Save failed", updateErr.message);
-      return;
-    }
-
-    setAvatarUrl(publicUrl);
-    Alert.alert("Success", "Avatar updated!");
   }
 
   async function onRemoveAvatar() {
@@ -133,30 +143,36 @@ export default function ProfileScreen() {
         text: "Remove",
         style: "destructive",
         onPress: async () => {
-          const path = `${user!.id}.jpg`;
+          setIsLoading(true);
+            try {
+              const path = `${user!.id}.jpg`;
 
-          // delete from Storage
-          const { error: delErr } = await supabase.storage
-            .from("avatars")
-            .remove([path]);
-          if (delErr) {
-            Alert.alert("Delete failed", delErr.message);
-            return;
+            // delete from Storage
+            const { error: delErr } = await supabase.storage
+              .from("avatars")
+              .remove([path]);
+            if (delErr) {
+              Alert.alert("Delete failed", delErr.message);
+              return;
+            }
+
+            // clear avatar_url in users table
+            const { error: updateErr } = await supabase
+              .from("users")
+              .update({ avatar_url: null })
+              .eq("id", user!.id);
+
+            if (updateErr) {
+              Alert.alert("Save failed", updateErr.message);
+              return;
+            }
+
+            setAvatarUrl(null);
+          } catch (e) {
+            console.error(e);
+          } finally {
+            setIsLoading(false);
           }
-
-          // clear avatar_url in users table
-          const { error: updateErr } = await supabase
-            .from("users")
-            .update({ avatar_url: null })
-            .eq("id", user!.id);
-
-          if (updateErr) {
-            Alert.alert("Save failed", updateErr.message);
-            return;
-          }
-
-          setAvatarUrl(null);
-          Alert.alert("Removed", "Your avatar was removed.");
         },
       },
     ]);
@@ -184,10 +200,19 @@ export default function ProfileScreen() {
             }}
           />
         )}
-        <Button title="Change avatar" onPress={onPickAvatar} />
+        <Button
+          title={isLoading ? "Uploading..." : "Change avatar"}
+          onPress={onPickAvatar}
+          disabled={isLoading}
+        />
         
         {avatarUrl ? (
-          <Button title="Remove avatar" color="#c00" onPress={onRemoveAvatar} />
+          <Button
+            title={isLoading ? "Removing..." : "Remove avatar"}
+            color="#c00"
+            onPress={onRemoveAvatar}
+            disabled={isLoading}
+          />
         ) : null}
 
         <Text>Email: {user.email}</Text>
