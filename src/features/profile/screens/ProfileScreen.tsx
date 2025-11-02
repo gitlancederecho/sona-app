@@ -1,4 +1,5 @@
 // src/features/profile/screens/ProfileScreen.tsx
+import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
 import { Alert, Button, Image, Text, TextInput, View } from "react-native";
@@ -52,22 +53,47 @@ export default function ProfileScreen() {
     const res = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      quality: 0.9,
+      quality: 0.5,
       aspect: [1, 1],
     });
     if (res.canceled || !res.assets?.length) return;
 
     const asset = res.assets[0];
-    const fileUri = asset.uri;
+    let fileUri = asset.uri;
+
+    try {
+      const manipulated = await ImageManipulator.manipulateAsync(
+        fileUri,
+        [{ resize: { width: 512 } }],
+        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+      );
+      fileUri = manipulated.uri;
+    } catch (e) {
+      console.warn("Image manipulate failed, using original:", e);
+    }
 
     // get bytes from the local file (no blob in React Native)
-    const resp = await fetch(fileUri);
-    const arrayBuffer = await resp.arrayBuffer();
-    const bytes = new Uint8Array(arrayBuffer);
+    let bytes: Uint8Array;
+    try {
+      const resp = await fetch(fileUri);
+      const arrayBuffer = await resp.arrayBuffer();
+      bytes = new Uint8Array(arrayBuffer);
+    } catch (err) {
+      console.error("File fetch failed:", err);
+      Alert.alert(
+        "File error",
+        "Unable to access the selected image. Please pick another one from your library."
+      );
+      return;
+    }
 
     // choose a stable path and content type
     const path = `${user!.id}.jpg`;
     const contentType = asset.mimeType || "image/jpeg";
+
+    const probe = await supabase.from("users").select("id").limit(1);
+    if (probe.error) console.warn("Probe error:", probe.error);
+    else console.warn("Probe OK");
 
     // upload bytes to Supabase Storage
     const { error: uploadErr } = await supabase.storage
@@ -98,6 +124,44 @@ export default function ProfileScreen() {
     Alert.alert("Success", "Avatar updated!");
   }
 
+  async function onRemoveAvatar() {
+    if (!user) return;
+
+    Alert.alert("Remove avatar", "Are you sure you want to remove your avatar?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Remove",
+        style: "destructive",
+        onPress: async () => {
+          const path = `${user!.id}.jpg`;
+
+          // delete from Storage
+          const { error: delErr } = await supabase.storage
+            .from("avatars")
+            .remove([path]);
+          if (delErr) {
+            Alert.alert("Delete failed", delErr.message);
+            return;
+          }
+
+          // clear avatar_url in users table
+          const { error: updateErr } = await supabase
+            .from("users")
+            .update({ avatar_url: null })
+            .eq("id", user!.id);
+
+          if (updateErr) {
+            Alert.alert("Save failed", updateErr.message);
+            return;
+          }
+
+          setAvatarUrl(null);
+          Alert.alert("Removed", "Your avatar was removed.");
+        },
+      },
+    ]);
+  }
+
   if (!user) return null;
 
   return (
@@ -121,6 +185,10 @@ export default function ProfileScreen() {
           />
         )}
         <Button title="Change avatar" onPress={onPickAvatar} />
+        
+        {avatarUrl ? (
+          <Button title="Remove avatar" color="#c00" onPress={onRemoveAvatar} />
+        ) : null}
 
         <Text>Email: {user.email}</Text>
         <TextInput
