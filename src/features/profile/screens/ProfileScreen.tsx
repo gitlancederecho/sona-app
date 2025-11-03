@@ -8,6 +8,7 @@ import {
   Button,
   Image,
   Pressable,
+  StyleSheet,
   Text,
   TextInput,
   View,
@@ -15,8 +16,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import GlassCard from "src/components/ui/GlassCard";
 import GlassPill from "src/components/ui/GlassPill";
+import BokehLayer from "src/features/profile/components/BokehLayer";
 import { supabase } from "src/lib/supabase";
 import { useAuth } from "src/providers/AuthProvider";
+
 
 // NEW: pull colors from our theme provider
 import { useThemeMode } from "src/theme/ThemeModeProvider";
@@ -227,6 +230,10 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
+      {/* Ambient background */}
+      <View style={{ ...StyleSheet.absoluteFillObject, overflow: "hidden" }}>
+        <BokehLayer />
+      </View>
       <View style={{ padding: 24, gap: 12, alignItems: "center" }}>
         <Text style={{ fontSize: 24, fontWeight: "600", color: colors.text }}>Profile</Text>
 
