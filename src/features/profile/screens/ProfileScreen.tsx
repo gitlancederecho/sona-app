@@ -2,18 +2,42 @@
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
-import { Alert, Button, Image, Text, TextInput, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Button,
+  Image,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { supabase } from "src/lib/supabase";
 import { useAuth } from "src/providers/AuthProvider";
 
 export default function ProfileScreen() {
   const { user } = useAuth();
+
+  // profile fields
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
+
+  // track initial values so Save disables when nothing changed
+  const [initialName, setInitialName] = useState("");
+  const [initialBio, setInitialBio] = useState("");
+
+  // avatar state
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [avatarVersion, setAvatarVersion] = useState(0);
+
+  // ui state
+  const [isLoading, setIsLoading] = useState(false); // avatar ops
+  const [isSaving, setIsSaving] = useState(false);   // profile save
+
+  // micro-delay so the spinner is visible even on fast responses
+  const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
+  const MIN_SPINNER_MS = 450;
 
   useEffect(() => {
     let active = true;
@@ -24,9 +48,16 @@ export default function ProfileScreen() {
         .select("name, bio, avatar_url")
         .eq("id", user.id)
         .maybeSingle();
+
       if (!active || error) return;
-      setName(data?.name ?? "");
-      setBio(data?.bio ?? "");
+
+      const n = data?.name ?? "";
+      const b = data?.bio ?? "";
+
+      setName(n);
+      setBio(b);
+      setInitialName(n);
+      setInitialBio(b);
       setAvatarUrl(data?.avatar_url ?? null);
     }
     load();
@@ -35,18 +66,31 @@ export default function ProfileScreen() {
     };
   }, [user]);
 
+  const hasChanges = name !== initialName || bio !== initialBio;
+
   async function onSave() {
-    if (!user) return;
-    const { error } = await supabase
-      .from("users")
-      .update({ name, bio })
-      .eq("id", user.id);
-    if (error) Alert.alert("Update failed", error.message);
-    else Alert.alert("Saved", "Profile updated.");
+    if (!user || isSaving || !hasChanges) return;
+    setIsSaving(true);
+
+    const started = Date.now();
+    const { error } = await supabase.from("users").update({ name, bio }).eq("id", user.id);
+
+    const elapsed = Date.now() - started;
+    if (elapsed < MIN_SPINNER_MS) await wait(MIN_SPINNER_MS - elapsed);
+    setIsSaving(false);
+
+    if (error) {
+      Alert.alert("Update failed", error.message);
+      return;
+    }
+
+    // lock Save again until something changes
+    setInitialName(name);
+    setInitialBio(bio);
   }
 
   async function onPickAvatar() {
-    if (isLoading) return;
+    if (isLoading || !user) return;
     setIsLoading(true);
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -77,7 +121,7 @@ export default function ProfileScreen() {
         console.warn("Image manipulate failed, using original:", e);
       }
 
-      // get bytes from the local file (no blob in React Native)
+      // get bytes from the local file (no blob in RN)
       let bytes: Uint8Array;
       try {
         const resp = await fetch(fileUri);
@@ -92,13 +136,8 @@ export default function ProfileScreen() {
         return;
       }
 
-      // choose a stable path and content type
-      const path = `${user!.id}.jpg`;
+      const path = `${user.id}.jpg`;
       const contentType = asset.mimeType || "image/jpeg";
-
-      const probe = await supabase.from("users").select("id").limit(1);
-      if (probe.error) console.warn("Probe error:", probe.error);
-      else console.warn("Probe OK");
 
       // upload bytes to Supabase Storage
       const { error: uploadErr } = await supabase.storage
@@ -110,7 +149,7 @@ export default function ProfileScreen() {
         return;
       }
 
-      // get public URL (no error object returned here)
+      // get public URL
       const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
       const publicUrl = pub.publicUrl;
 
@@ -118,7 +157,7 @@ export default function ProfileScreen() {
       const { error: updateErr } = await supabase
         .from("users")
         .update({ avatar_url: publicUrl })
-        .eq("id", user!.id);
+        .eq("id", user.id);
 
       if (updateErr) {
         Alert.alert("Save failed", updateErr.message);
@@ -126,8 +165,7 @@ export default function ProfileScreen() {
       }
 
       setAvatarUrl(publicUrl);
-      setAvatarVersion(v => v + 1);
-
+      setAvatarVersion((v) => v + 1);
       Alert.alert("Success", "Avatar updated!");
     } catch (err) {
       console.error(err);
@@ -146,13 +184,11 @@ export default function ProfileScreen() {
         style: "destructive",
         onPress: async () => {
           setIsLoading(true);
-            try {
-              const path = `${user!.id}.jpg`;
+          try {
+            const path = `${user.id}.jpg`;
 
             // delete from Storage
-            const { error: delErr } = await supabase.storage
-              .from("avatars")
-              .remove([path]);
+            const { error: delErr } = await supabase.storage.from("avatars").remove([path]);
             if (delErr) {
               Alert.alert("Delete failed", delErr.message);
               return;
@@ -162,7 +198,7 @@ export default function ProfileScreen() {
             const { error: updateErr } = await supabase
               .from("users")
               .update({ avatar_url: null })
-              .eq("id", user!.id);
+              .eq("id", user.id);
 
             if (updateErr) {
               Alert.alert("Save failed", updateErr.message);
@@ -170,8 +206,7 @@ export default function ProfileScreen() {
             }
 
             setAvatarUrl(null);
-            setAvatarVersion(v => v + 1);
-            
+            setAvatarVersion((v) => v + 1);
           } catch (e) {
             console.error(e);
           } finally {
@@ -208,9 +243,7 @@ export default function ProfileScreen() {
 
         <Button
           title={
-            isLoading
-              ? (avatarUrl ? "Uploading..." : "Adding...")
-              : (avatarUrl ? "Change avatar" : "Add avatar")
+            isLoading ? (avatarUrl ? "Uploading..." : "Adding...") : avatarUrl ? "Change avatar" : "Add avatar"
           }
           onPress={onPickAvatar}
           disabled={isLoading}
@@ -226,6 +259,7 @@ export default function ProfileScreen() {
         ) : null}
 
         <Text>Email: {user.email}</Text>
+
         <TextInput
           placeholder="Name"
           value={name}
@@ -238,7 +272,27 @@ export default function ProfileScreen() {
           onChangeText={setBio}
           style={{ borderWidth: 1, padding: 12, borderRadius: 10, width: "100%" }}
         />
-        <Button title="Save" onPress={onSave} />
+
+        {/* Instagram-ish Save: disabled unless something changed, short spinner even on fast saves */}
+        <Pressable
+          onPress={onSave}
+          disabled={isSaving || !hasChanges}
+          style={{
+            width: "100%",
+            backgroundColor: "#111",
+            paddingVertical: 14,
+            borderRadius: 10,
+            opacity: isSaving || !hasChanges ? 0.6 : 1,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {isSaving ? (
+            <ActivityIndicator />
+          ) : (
+            <Text style={{ color: "#fff", fontWeight: "700" }}>Save</Text>
+          )}
+        </Pressable>
       </View>
     </SafeAreaView>
   );
