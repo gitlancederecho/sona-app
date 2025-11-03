@@ -16,8 +16,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { supabase } from "src/lib/supabase";
 import { useAuth } from "src/providers/AuthProvider";
 
+// NEW: pull colors from our theme provider
+import { useThemeMode } from "src/theme/ThemeModeProvider";
+
 export default function ProfileScreen() {
   const { user } = useAuth();
+  const { colors, isDark } = useThemeMode(); // <- theme colors
 
   // profile fields
   const [name, setName] = useState("");
@@ -220,15 +224,15 @@ export default function ProfileScreen() {
   if (!user) return null;
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
       <View style={{ padding: 24, gap: 12, alignItems: "center" }}>
-        <Text style={{ fontSize: 24, fontWeight: "600" }}>Profile</Text>
+        <Text style={{ fontSize: 24, fontWeight: "600", color: colors.text }}>Profile</Text>
 
         {avatarUrl ? (
           <Image
             key={`${avatarUrl}-${avatarVersion}`}
             source={{ uri: `${avatarUrl}?v=${avatarVersion}` }}
-            style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: "#eee" }}
+            style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: isDark ? "#222" : "#eee" }}
           />
         ) : (
           <View
@@ -236,7 +240,7 @@ export default function ProfileScreen() {
               width: 96,
               height: 96,
               borderRadius: 48,
-              backgroundColor: "#eee",
+              backgroundColor: isDark ? "#222" : "#eee",
             }}
           />
         )}
@@ -258,28 +262,45 @@ export default function ProfileScreen() {
           />
         ) : null}
 
-        <Text>Email: {user.email}</Text>
+        <Text style={{ color: colors.text }}>Email: {user.email}</Text>
 
         <TextInput
           placeholder="Name"
+          placeholderTextColor={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
           value={name}
           onChangeText={setName}
-          style={{ borderWidth: 1, padding: 12, borderRadius: 10, width: "100%" }}
+          style={{
+            borderWidth: 1,
+            borderColor: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
+            color: colors.text,
+            padding: 12,
+            borderRadius: 10,
+            width: "100%",
+            backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
+          }}
         />
         <TextInput
           placeholder="Bio"
+          placeholderTextColor={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
           value={bio}
           onChangeText={setBio}
-          style={{ borderWidth: 1, padding: 12, borderRadius: 10, width: "100%" }}
+          style={{
+            borderWidth: 1,
+            borderColor: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
+            color: colors.text,
+            padding: 12,
+            borderRadius: 10,
+            width: "100%",
+            backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
+          }}
         />
 
-        {/* Instagram-ish Save: disabled unless something changed, short spinner even on fast saves */}
         <Pressable
           onPress={onSave}
           disabled={isSaving || !hasChanges}
           style={{
             width: "100%",
-            backgroundColor: "#111",
+            backgroundColor: colors.accent,
             paddingVertical: 14,
             borderRadius: 10,
             opacity: isSaving || !hasChanges ? 0.6 : 1,
@@ -290,7 +311,7 @@ export default function ProfileScreen() {
           {isSaving ? (
             <ActivityIndicator />
           ) : (
-            <Text style={{ color: "#fff", fontWeight: "700" }}>Save</Text>
+            <Text style={{ color: isDark ? "#0B0B0F" : "#0B0B0F", fontWeight: "700" }}>Save</Text>
           )}
         </Pressable>
       </View>
