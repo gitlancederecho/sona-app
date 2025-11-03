@@ -6,22 +6,49 @@ import {
   ActivityIndicator,
   Alert,
   Button,
-  Image,
   Pressable,
-  StyleSheet,
+  ScrollView,
   Text,
   TextInput,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import BokehLayer from "src/features/profile/components/BokehLayer";
+import GlassCard from "src/components/ui/GlassCard";
 import HeroProfile from "src/features/profile/components/HeroProfile";
 import { supabase } from "src/lib/supabase";
 import { useAuth } from "src/providers/AuthProvider";
-
-
-// NEW: pull colors from our theme provider
 import { useThemeMode } from "src/theme/ThemeModeProvider";
+
+function ProfileTopBar({ handle }: { handle: string }) {
+  return (
+    <View
+      style={{
+        height: 56,
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 12,
+      }}
+    >
+      {/* left */}
+      <View style={{ width: 48, alignItems: "flex-start" }}>
+        {/* add icon placeholder */}
+        <Text style={{ fontSize: 24, opacity: 0.85 }}>＋</Text>
+      </View>
+
+      {/* center */}
+      <View style={{ flex: 1, alignItems: "center" }}>
+        <Text style={{ fontSize: 20, fontWeight: "700" }}>{handle}</Text>
+      </View>
+
+      {/* right */}
+      <View style={{ width: 48, flexDirection: "row", justifyContent: "flex-end", gap: 8 }}>
+        {/* inbox + menu placeholders */}
+        <Text style={{ fontSize: 18, opacity: 0.85 }}>◎</Text>
+        <Text style={{ fontSize: 18, opacity: 0.85 }}>≡</Text>
+      </View>
+    </View>
+  );
+}
 
 export default function ProfileScreen() {
   const { user } = useAuth();
@@ -52,7 +79,7 @@ export default function ProfileScreen() {
     name,
     handle: name ? name.toLowerCase().replace(/\s+/g, "") : undefined,
     avatar_url: avatarUrl,
-    followers: 0,   // placeholder until you wire real numbers
+    followers: 0,
     following: 0,
     moments: 0,
     bio,
@@ -238,47 +265,60 @@ export default function ProfileScreen() {
 
   if (!user) return null;
 
+  const MAX_W = 640;
+  const H_PAD = 20;
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
-      {/* Ambient background */}
-      <View style={{ ...StyleSheet.absoluteFillObject, overflow: "hidden" }}>
-        <BokehLayer />
-      </View>
-      
-      <HeroProfile user={userModel}>
-        {/* everything below becomes scroll content under the hero */}
-        <View style={{ padding: 24, gap: 12, alignItems: "center" }}>
-          <Text style={{ fontSize: 24, fontWeight: "600", color: colors.text }}>Profile</Text>
+      <ScrollView
+        contentContainerStyle={{
+          alignItems: "center",
+          paddingBottom: 40,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={{ width: "100%", maxWidth: 640 }}>
+          <ProfileTopBar handle={user?.id ?? "username"} />
+        </View>
 
-          {/* <GlassCard style={{ width: "100%", marginTop: 8 }}>
-            <View style={{ height: 72 }} />
-          </GlassCard> */}
-          
-          {avatarUrl ? (
-            <Image
-              key={`${avatarUrl}-${avatarVersion}`}
-              source={{ uri: `${avatarUrl}?v=${avatarVersion}` }}
-              style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: isDark ? "#222" : "#eee" }}
-            />
-          ) : (
-            <View
-              style={{
-                width: 96,
-                height: 96,
-                borderRadius: 48,
-                backgroundColor: isDark ? "#222" : "#eee",
-              }}
-            />
-          )}
+        <HeroProfile user={userModel} />
 
+        <View style={{ width: "100%", maxWidth: 640, paddingHorizontal: 16, marginTop: 10 }}>
+          <GlassCard>
+            <View style={{ padding: 14 }}>
+              <Text style={{ fontWeight: "700" }}>Your dashboard</Text>
+              <Text style={{ marginTop: 2, opacity: 0.7 }}>Audience insights, inspiration and tools.</Text>
+            </View>
+          </GlassCard>
+
+          <View style={{ flexDirection: "row", gap: 10, marginTop: 10 }}>
+            <GlassCard style={{ flex: 1 }}>
+              <View style={{ paddingVertical: 12, alignItems: "center" }}>
+                <Text style={{ fontWeight: "600" }}>Edit profile</Text>
+              </View>
+            </GlassCard>
+            <GlassCard style={{ flex: 1 }}>
+              <View style={{ paddingVertical: 12, alignItems: "center" }}>
+                <Text style={{ fontWeight: "600" }}>Share profile</Text>
+              </View>
+            </GlassCard>
+            <GlassCard>
+              <View style={{ width: 44, height: 44, alignItems: "center", justifyContent: "center" }}>
+                <Text style={{ fontSize: 18 }}>＋</Text>
+              </View>
+            </GlassCard>
+          </View>
+        </View>
+
+
+        {/* Action zone below hero (we'll glass these in the next pass) */}
+        <View style={{ width: "100%", maxWidth: MAX_W, paddingHorizontal: H_PAD, gap: 12 }}>
+          {/* Avatar controls only, not a second avatar preview */}
           <Button
-            title={
-              isLoading ? (avatarUrl ? "Uploading..." : "Adding...") : avatarUrl ? "Change avatar" : "Add avatar"
-            }
+            title={isLoading ? (avatarUrl ? "Uploading..." : "Adding...") : avatarUrl ? "Change avatar" : "Add avatar"}
             onPress={onPickAvatar}
             disabled={isLoading}
           />
-
           {avatarUrl ? (
             <Button
               title={isLoading ? "Removing..." : "Remove avatar"}
@@ -290,6 +330,7 @@ export default function ProfileScreen() {
 
           <Text style={{ color: colors.text }}>Email: {user.email}</Text>
 
+          {/* Name */}
           <TextInput
             placeholder="Name"
             placeholderTextColor={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
@@ -301,10 +342,11 @@ export default function ProfileScreen() {
               color: colors.text,
               padding: 12,
               borderRadius: 10,
-              width: "100%",
               backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
             }}
           />
+
+          {/* Bio */}
           <TextInput
             placeholder="Bio"
             placeholderTextColor={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
@@ -316,16 +358,15 @@ export default function ProfileScreen() {
               color: colors.text,
               padding: 12,
               borderRadius: 10,
-              width: "100%",
               backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
             }}
           />
 
+          {/* Save */}
           <Pressable
             onPress={onSave}
             disabled={isSaving || !hasChanges}
             style={{
-              width: "100%",
               backgroundColor: colors.accent,
               paddingVertical: 14,
               borderRadius: 10,
@@ -334,15 +375,10 @@ export default function ProfileScreen() {
               justifyContent: "center",
             }}
           >
-            {isSaving ? (
-              <ActivityIndicator />
-            ) : (
-              <Text style={{ color: isDark ? "#0B0B0F" : "#0B0B0F", fontWeight: "700" }}>Save</Text>
-            )}
+            {isSaving ? <ActivityIndicator /> : <Text style={{ color: "#0B0B0F", fontWeight: "700" }}>Save</Text>}
           </Pressable>
         </View>
-      </HeroProfile>
-      
+      </ScrollView>
     </SafeAreaView>
   );
 }
