@@ -55,6 +55,7 @@ export default function ProfileScreen() {
     followers: 0,   // placeholder until you wire real numbers
     following: 0,
     moments: 0,
+    bio,
   };
 
   useEffect(() => {

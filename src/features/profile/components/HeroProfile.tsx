@@ -26,6 +26,7 @@ type Props = {
         followers?: number;
         following?: number;
         moments?: number;
+        bio?: string;
     };
     children?: React.ReactNode; // Flow/content goes here
 };
@@ -74,24 +75,27 @@ export default function HeroProfile({ user, children }: Props) {
         <View style={{ flex: 1 }}>
             {/* Absolute hero */}
             <Animated.View style={[styles.heroWrap, heroStyle]}>
-                <GlassCard style={styles.heroCard} padding={spacing.lg}>
+                <GlassCard style={styles.heroCard} padding={16} sheen>
                     <View style={styles.row}>
-                        <Image
-                            source={
-                                user.avatar_url
-                                    ? { uri: `${user.avatar_url}?v=hero` }
-                                    : undefined
-                            }
-                            style={styles.avatar}
-                        />
+                        {/* Avatar left */}
+                        {user.avatar_url ? (
+                            <Image source={{ uri: `${user.avatar_url}?v=hero` }} style={styles.avatar} />
+                        ) : (
+                            <View style={[styles.avatar, { backgroundColor: "rgba(255,255,255,0.08)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.12)" }]} />
+                        )}
+
+                        {/* Name, handle, stats */}
                         <Animated.View style={[{ flex: 1 }, titleStyle]}>
                             <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
                                 {user.name ?? "Unnamed"}
                             </Text>
                             {user.handle ? (
-                                <Text style={{ color: colors.text, opacity: 0.6, marginTop: 2 }}>@{user.handle}</Text>
+                                <Text style={{ color: colors.text, opacity: 0.6, marginTop: 2 }} numberOfLines={1}>
+                                    @{user.handle}
+                                </Text>
                             ) : null}
 
+                            {/* Stats pills row */}
                             <View style={styles.statsRow}>
                                 <GlassPill label="Followers" value={user.followers ?? 0} />
                                 <GlassPill label="Following" value={user.following ?? 0} />
@@ -99,6 +103,13 @@ export default function HeroProfile({ user, children }: Props) {
                             </View>
                         </Animated.View>
                     </View>
+
+                    {/* Optional single-line bio to mimic IG */}
+                    {user.bio ? (
+                        <Text style={{ marginTop: 8, color: colors.text, opacity: 0.85 }} numberOfLines={2}>
+                            {user.bio}
+                        </Text>
+                    ) : null}
                 </GlassCard>
             </Animated.View>
 
@@ -114,37 +125,37 @@ export default function HeroProfile({ user, children }: Props) {
     );
 }
 
-const AVATAR = 84;
+const AVATAR = 72;
 
 const styles = StyleSheet.create({
-    heroWrap: {
-        position: "absolute",
-        left: spacing.xl,
-        right: spacing.xl,
-        top: spacing.xl,
-        zIndex: 2,
-    },
-    heroCard: {
-        borderRadius: radius.xl,
-    },
-    row: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: spacing.lg,
-    },
-    avatar: {
-        width: AVATAR,
-        height: AVATAR,
-        borderRadius: AVATAR / 2,
-        backgroundColor: "rgba(255,255,255,0.06)",
-    },
-    name: {
-        fontSize: 28,
-        fontWeight: "700",
-    },
-    statsRow: {
-        marginTop: spacing.md,
-        flexDirection: "row",
-        gap: spacing.sm,
-    },
+  heroWrap: {
+    position: "absolute",
+    left: spacing.xl,
+    right: spacing.xl,
+    top: spacing.xl,
+    zIndex: 2,
+  },
+  heroCard: {
+    borderRadius: radius.xl,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.lg,
+  },
+  avatar: {
+    width: AVATAR,
+    height: AVATAR,
+    borderRadius: AVATAR / 2,
+    backgroundColor: "rgba(255,255,255,0.06)",
+  },
+  name: {
+    fontSize: 22,        // more compact
+    fontWeight: "700",
+  },
+  statsRow: {
+    marginTop: 10,
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
 });

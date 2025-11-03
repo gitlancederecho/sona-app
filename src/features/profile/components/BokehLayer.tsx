@@ -24,7 +24,7 @@ const Dot: React.FC<{ i: number; isDark: boolean; t: SharedValue<number> }> = ({
       transform: [{ translateX: x }, { translateY: y }],
       width: size,
       height: size,
-      opacity: isDark ? 0.16 : 0.08,
+      opacity: isDark ? 0.12 : 0.06,
       backgroundColor: "#99C7FF",
     };
   });
