@@ -13,6 +13,7 @@ export default function ProfileScreen() {
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [avatarVersion, setAvatarVersion] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -125,6 +126,7 @@ export default function ProfileScreen() {
       }
 
       setAvatarUrl(publicUrl);
+      setAvatarVersion(v => v + 1);
 
       Alert.alert("Success", "Avatar updated!");
     } catch (err) {
@@ -168,6 +170,8 @@ export default function ProfileScreen() {
             }
 
             setAvatarUrl(null);
+            setAvatarVersion(v => v + 1);
+            
           } catch (e) {
             console.error(e);
           } finally {
@@ -187,7 +191,8 @@ export default function ProfileScreen() {
 
         {avatarUrl ? (
           <Image
-            source={{ uri: avatarUrl }}
+            key={`${avatarUrl}-${avatarVersion}`}
+            source={{ uri: `${avatarUrl}?v=${avatarVersion}` }}
             style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: "#eee" }}
           />
         ) : (
@@ -200,12 +205,17 @@ export default function ProfileScreen() {
             }}
           />
         )}
+
         <Button
-          title={isLoading ? "Uploading..." : "Change avatar"}
+          title={
+            isLoading
+              ? (avatarUrl ? "Uploading..." : "Adding...")
+              : (avatarUrl ? "Change avatar" : "Add avatar")
+          }
           onPress={onPickAvatar}
           disabled={isLoading}
         />
-        
+
         {avatarUrl ? (
           <Button
             title={isLoading ? "Removing..." : "Remove avatar"}
