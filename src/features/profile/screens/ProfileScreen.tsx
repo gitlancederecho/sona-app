@@ -14,9 +14,8 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import GlassCard from "src/components/ui/GlassCard";
-import GlassPill from "src/components/ui/GlassPill";
 import BokehLayer from "src/features/profile/components/BokehLayer";
+import HeroProfile from "src/features/profile/components/HeroProfile";
 import { supabase } from "src/lib/supabase";
 import { useAuth } from "src/providers/AuthProvider";
 
@@ -47,6 +46,16 @@ export default function ProfileScreen() {
   // micro-delay so the spinner is visible even on fast responses
   const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
   const MIN_SPINNER_MS = 450;
+
+  const userModel = {
+    id: user!.id,
+    name,
+    handle: name ? name.toLowerCase().replace(/\s+/g, "") : undefined,
+    avatar_url: avatarUrl,
+    followers: 0,   // placeholder until you wire real numbers
+    following: 0,
+    moments: 0,
+  };
 
   useEffect(() => {
     let active = true;
@@ -234,106 +243,105 @@ export default function ProfileScreen() {
       <View style={{ ...StyleSheet.absoluteFillObject, overflow: "hidden" }}>
         <BokehLayer />
       </View>
-      <View style={{ padding: 24, gap: 12, alignItems: "center" }}>
-        <Text style={{ fontSize: 24, fontWeight: "600", color: colors.text }}>Profile</Text>
+      
+      <HeroProfile user={userModel}>
+        {/* everything below becomes scroll content under the hero */}
+        <View style={{ padding: 24, gap: 12, alignItems: "center" }}>
+          <Text style={{ fontSize: 24, fontWeight: "600", color: colors.text }}>Profile</Text>
 
-        <GlassCard style={{ width: "100%", marginTop: 8 }}>
-          <View style={{ height: 72 }} />
-        </GlassCard>
+          {/* <GlassCard style={{ width: "100%", marginTop: 8 }}>
+            <View style={{ height: 72 }} />
+          </GlassCard> */}
+          
+          {avatarUrl ? (
+            <Image
+              key={`${avatarUrl}-${avatarVersion}`}
+              source={{ uri: `${avatarUrl}?v=${avatarVersion}` }}
+              style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: isDark ? "#222" : "#eee" }}
+            />
+          ) : (
+            <View
+              style={{
+                width: 96,
+                height: 96,
+                borderRadius: 48,
+                backgroundColor: isDark ? "#222" : "#eee",
+              }}
+            />
+          )}
 
-        <View style={{ width: "100%", marginTop: 10, flexDirection: "row", gap: 8, justifyContent: "center" }}>
-          <GlassPill label="Followers" value={0} />
-          <GlassPill label="Following" value={0} />
-          <GlassPill label="Moments" value={0} />
-        </View>
-
-        {avatarUrl ? (
-          <Image
-            key={`${avatarUrl}-${avatarVersion}`}
-            source={{ uri: `${avatarUrl}?v=${avatarVersion}` }}
-            style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: isDark ? "#222" : "#eee" }}
-          />
-        ) : (
-          <View
-            style={{
-              width: 96,
-              height: 96,
-              borderRadius: 48,
-              backgroundColor: isDark ? "#222" : "#eee",
-            }}
-          />
-        )}
-
-        <Button
-          title={
-            isLoading ? (avatarUrl ? "Uploading..." : "Adding...") : avatarUrl ? "Change avatar" : "Add avatar"
-          }
-          onPress={onPickAvatar}
-          disabled={isLoading}
-        />
-
-        {avatarUrl ? (
           <Button
-            title={isLoading ? "Removing..." : "Remove avatar"}
-            color="#c00"
-            onPress={onRemoveAvatar}
+            title={
+              isLoading ? (avatarUrl ? "Uploading..." : "Adding...") : avatarUrl ? "Change avatar" : "Add avatar"
+            }
+            onPress={onPickAvatar}
             disabled={isLoading}
           />
-        ) : null}
 
-        <Text style={{ color: colors.text }}>Email: {user.email}</Text>
+          {avatarUrl ? (
+            <Button
+              title={isLoading ? "Removing..." : "Remove avatar"}
+              color="#c00"
+              onPress={onRemoveAvatar}
+              disabled={isLoading}
+            />
+          ) : null}
 
-        <TextInput
-          placeholder="Name"
-          placeholderTextColor={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
-          value={name}
-          onChangeText={setName}
-          style={{
-            borderWidth: 1,
-            borderColor: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
-            color: colors.text,
-            padding: 12,
-            borderRadius: 10,
-            width: "100%",
-            backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
-          }}
-        />
-        <TextInput
-          placeholder="Bio"
-          placeholderTextColor={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
-          value={bio}
-          onChangeText={setBio}
-          style={{
-            borderWidth: 1,
-            borderColor: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
-            color: colors.text,
-            padding: 12,
-            borderRadius: 10,
-            width: "100%",
-            backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
-          }}
-        />
+          <Text style={{ color: colors.text }}>Email: {user.email}</Text>
 
-        <Pressable
-          onPress={onSave}
-          disabled={isSaving || !hasChanges}
-          style={{
-            width: "100%",
-            backgroundColor: colors.accent,
-            paddingVertical: 14,
-            borderRadius: 10,
-            opacity: isSaving || !hasChanges ? 0.6 : 1,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {isSaving ? (
-            <ActivityIndicator />
-          ) : (
-            <Text style={{ color: isDark ? "#0B0B0F" : "#0B0B0F", fontWeight: "700" }}>Save</Text>
-          )}
-        </Pressable>
-      </View>
+          <TextInput
+            placeholder="Name"
+            placeholderTextColor={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
+            value={name}
+            onChangeText={setName}
+            style={{
+              borderWidth: 1,
+              borderColor: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
+              color: colors.text,
+              padding: 12,
+              borderRadius: 10,
+              width: "100%",
+              backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
+            }}
+          />
+          <TextInput
+            placeholder="Bio"
+            placeholderTextColor={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
+            value={bio}
+            onChangeText={setBio}
+            style={{
+              borderWidth: 1,
+              borderColor: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
+              color: colors.text,
+              padding: 12,
+              borderRadius: 10,
+              width: "100%",
+              backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
+            }}
+          />
+
+          <Pressable
+            onPress={onSave}
+            disabled={isSaving || !hasChanges}
+            style={{
+              width: "100%",
+              backgroundColor: colors.accent,
+              paddingVertical: 14,
+              borderRadius: 10,
+              opacity: isSaving || !hasChanges ? 0.6 : 1,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {isSaving ? (
+              <ActivityIndicator />
+            ) : (
+              <Text style={{ color: isDark ? "#0B0B0F" : "#0B0B0F", fontWeight: "700" }}>Save</Text>
+            )}
+          </Pressable>
+        </View>
+      </HeroProfile>
+      
     </SafeAreaView>
   );
 }
