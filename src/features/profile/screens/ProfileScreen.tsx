@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import GlassCard from "src/components/ui/GlassCard";
 import { supabase } from "src/lib/supabase";
 import { useAuth } from "src/providers/AuthProvider";
 
@@ -227,6 +228,10 @@ export default function ProfileScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
       <View style={{ padding: 24, gap: 12, alignItems: "center" }}>
         <Text style={{ fontSize: 24, fontWeight: "600", color: colors.text }}>Profile</Text>
+
+        <GlassCard style={{ width: "100%", marginTop: 8 }}>
+          <View style={{ height: 72 }} />
+        </GlassCard>
 
         {avatarUrl ? (
           <Image
