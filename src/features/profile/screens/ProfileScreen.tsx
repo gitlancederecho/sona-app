@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import GlassCard from "src/components/ui/GlassCard";
+import GlassPill from "src/components/ui/GlassPill";
 import { supabase } from "src/lib/supabase";
 import { useAuth } from "src/providers/AuthProvider";
 
@@ -232,6 +233,12 @@ export default function ProfileScreen() {
         <GlassCard style={{ width: "100%", marginTop: 8 }}>
           <View style={{ height: 72 }} />
         </GlassCard>
+
+        <View style={{ width: "100%", marginTop: 10, flexDirection: "row", gap: 8, justifyContent: "center" }}>
+          <GlassPill label="Followers" value={0} />
+          <GlassPill label="Following" value={0} />
+          <GlassPill label="Moments" value={0} />
+        </View>
 
         {avatarUrl ? (
           <Image
