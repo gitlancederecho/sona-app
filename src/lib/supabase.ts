@@ -7,6 +7,14 @@ const key = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 if (!url) throw new Error('Missing EXPO_PUBLIC_SUPABASE_URL. Create .env.local.');
 if (!key) throw new Error('Missing EXPO_PUBLIC_SUPABASE_ANON_KEY. Add it to .env.local.');
 
+if (__DEV__) {
+  // Log minimal diagnostics without exposing secrets
+  try {
+    const safeUrl = new URL(url);
+    console.log('[supabase] URL set:', safeUrl.host);
+  } catch {}
+}
+
 export const supabase = createClient(url, key, {
   auth: {
     storage: AsyncStorage,
