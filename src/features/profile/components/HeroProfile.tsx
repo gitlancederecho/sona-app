@@ -22,16 +22,21 @@ export default function HeroProfile({ user }: Props) {
     const insets = useSafeAreaInsets();
 
     return (
-        <View style={[styles.wrap, { paddingTop: Math.max(insets.top, 6) + 8 }]}>
+        <View style={[styles.wrap, { paddingTop: Math.max(insets.top, 6) + 12 }]}>
             {/* Row: avatar on the left, right side has name on top of stats */}
             <View style={styles.topRow}>
                 {/* Avatar with + badge */}
                 <View style={styles.avatarWrap}>
-                    {user.avatar_url ? (
-                        <Image source={{ uri: user.avatar_url }} style={styles.avatar} />
-                    ) : (
-                        <View style={[styles.avatar, { backgroundColor: colors.card }]} />
-                    )}
+                    <View style={[
+                        styles.avatarRing,
+                        { borderColor: colors.accent, backgroundColor: "transparent" },
+                    ]}>
+                        {user.avatar_url ? (
+                            <Image source={{ uri: user.avatar_url }} style={styles.avatar} />
+                        ) : (
+                            <View style={[styles.avatar, { backgroundColor: colors.card }]} />
+                        )}
+                    </View>
 
                     <View style={[styles.addBadge, { backgroundColor: colors.card, borderColor: colors.bg }]}>
                         <Text style={{ fontSize: 16, fontWeight: "700", color: colors.text }}>＋</Text>
@@ -68,7 +73,7 @@ export default function HeroProfile({ user }: Props) {
             {/* Handle row */}
             {!!user.handle && (
                 <View style={styles.handleRow}>
-                    <Text style={{ fontSize: 16, color: colors.text }}>◎</Text>
+                    <Text style={{ fontSize: 14, color: colors.text, opacity: 0.7 }}>◎</Text>
                     <Text style={[styles.handleText, { color: colors.text }]} numberOfLines={1}>
                         @{user.handle}
                     </Text>
@@ -107,7 +112,7 @@ function StatBox({
     );
 }
 
-const AVATAR = 92;
+const AVATAR = 128;
 const MAX_W = 640;
 const H_PAD = 16;
 
@@ -126,11 +131,19 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         gap: 16,
-        marginTop: 10,
+        marginTop: 8,
     },
 
     avatarWrap: {
         position: "relative",
+    },
+    avatarRing: {
+        width: AVATAR + 8,
+        height: AVATAR + 8,
+        borderRadius: (AVATAR + 8) / 2,
+        borderWidth: 1,
+        alignItems: "center",
+        justifyContent: "center",
     },
     avatar: {
         width: AVATAR,
@@ -139,11 +152,11 @@ const styles = StyleSheet.create({
     },
     addBadge: {
         position: "absolute",
-        right: -2,
-        bottom: -2,
-        width: 26,
-        height: 26,
-        borderRadius: 13,
+        right: -4,
+        bottom: -4,
+        width: 28,
+        height: 28,
+        borderRadius: 14,
         alignItems: "center",
         justifyContent: "center",
         borderWidth: 2, // borderColor set from theme in render
@@ -156,9 +169,10 @@ const styles = StyleSheet.create({
         alignItems: "flex-start",
     },
     name: {
-        fontSize: 16,
+        fontSize: 22,
+        lineHeight: 26,
         fontWeight: "700",
-        marginBottom: 6, // tiny gap above Moments
+        marginBottom: 8,
         alignSelf: "flex-start",
     },
 
@@ -175,9 +189,9 @@ const styles = StyleSheet.create({
         minWidth: 72, // prevents collapse on very small phones
     },
     statValue: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: "700",
-        lineHeight: 22,
+        lineHeight: 20,
     },
     statLabel: {
         marginTop: 2,
@@ -189,7 +203,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         gap: 8,
-        marginTop: 10,
+        marginTop: 12,
     },
     handleText: {
         fontSize: 14,
@@ -197,8 +211,8 @@ const styles = StyleSheet.create({
     },
 
     bio: {
-        marginTop: 8,
+        marginTop: 12,
         fontSize: 14,
-        lineHeight: 18,
+        lineHeight: 20,
     },
 });

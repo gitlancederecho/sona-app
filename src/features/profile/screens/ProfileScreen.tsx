@@ -274,7 +274,7 @@ export default function ProfileScreen() {
       <ScrollView
         contentContainerStyle={{
           alignItems: "center",
-          paddingBottom: 40,
+          paddingBottom: 48,
         }}
         showsVerticalScrollIndicator={false}
       >
@@ -284,27 +284,27 @@ export default function ProfileScreen() {
 
         <HeroProfile user={userModel} />
 
-        <View style={{ width: "100%", maxWidth: 640, paddingHorizontal: 16, marginTop: 10 }}>
-          <GlassCard>
-            <View style={{ padding: 14 }}>
-              <Text style={{ fontWeight: "700", color: colors.text }}>Your dashboard</Text>
-              <Text style={{ marginTop: 2, opacity: 0.7, color: colors.text }}>Audience insights, inspiration and tools.</Text>
+        <View style={{ width: "100%", maxWidth: 640, paddingHorizontal: 16, marginTop: 12 }}>
+          <GlassCard sheen>
+            <View style={{ padding: 16 }}>
+              <Text style={{ fontSize: 16, fontWeight: "700", color: colors.text }}>Your dashboard</Text>
+              <Text style={{ marginTop: 4, opacity: 0.7, color: colors.text }}>Audience insights, inspiration and tools.</Text>
             </View>
           </GlassCard>
 
-          <View style={{ flexDirection: "row", gap: 10, marginTop: 10 }}>
+          <View style={{ flexDirection: "row", gap: 12, marginTop: 12 }}>
             <GlassCard style={{ flex: 1 }}>
-              <View style={{ paddingVertical: 12, alignItems: "center" }}>
+              <View style={{ paddingVertical: 14, alignItems: "center" }}>
                 <Text style={{ fontWeight: "600", color: colors.text }}>Edit profile</Text>
               </View>
             </GlassCard>
             <GlassCard style={{ flex: 1 }}>
-              <View style={{ paddingVertical: 12, alignItems: "center" }}>
+              <View style={{ paddingVertical: 14, alignItems: "center" }}>
                 <Text style={{ fontWeight: "600", color: colors.text }}>Share profile</Text>
               </View>
             </GlassCard>
             <GlassCard>
-              <View style={{ width: 44, height: 44, alignItems: "center", justifyContent: "center" }}>
+              <View style={{ width: 48, height: 48, alignItems: "center", justifyContent: "center" }}>
                 <Text style={{ fontSize: 18, color: colors.text }}>＋</Text>
               </View>
             </GlassCard>
@@ -313,7 +313,7 @@ export default function ProfileScreen() {
 
 
         {/* Action zone below hero (we'll glass these in the next pass) */}
-        <View style={{ width: "100%", maxWidth: MAX_W, paddingHorizontal: H_PAD, gap: 12 }}>
+        <View style={{ width: "100%", maxWidth: MAX_W, paddingHorizontal: H_PAD, gap: 16 }}>
           {/* Avatar controls only, not a second avatar preview */}
           <Button
             title={isLoading ? (avatarUrl ? "Uploading..." : "Adding...") : avatarUrl ? "Change avatar" : "Add avatar"}
@@ -341,8 +341,8 @@ export default function ProfileScreen() {
               borderWidth: 1,
               borderColor: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
               color: colors.text,
-              padding: 12,
-              borderRadius: 10,
+              padding: 14,
+              borderRadius: 12,
               backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
             }}
           />
@@ -357,8 +357,8 @@ export default function ProfileScreen() {
               borderWidth: 1,
               borderColor: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
               color: colors.text,
-              padding: 12,
-              borderRadius: 10,
+              padding: 14,
+              borderRadius: 12,
               backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
             }}
           />
@@ -369,8 +369,8 @@ export default function ProfileScreen() {
             disabled={isSaving || !hasChanges}
             style={{
               backgroundColor: colors.accent,
-              paddingVertical: 14,
-              borderRadius: 10,
+              paddingVertical: 16,
+              borderRadius: 12,
               opacity: isSaving || !hasChanges ? 0.6 : 1,
               alignItems: "center",
               justifyContent: "center",
