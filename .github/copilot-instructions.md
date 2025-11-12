@@ -88,5 +88,20 @@
 
 ---
 
+### 13. Reference documents for Copilot context
+
+For deeper architectural and product context, Copilot should always refer to the following Markdown documents located in `/docs/reference/`:
+
+- `VISION.md` — outlines SONA’s purpose, creative philosophy, and MVP boundaries.
+- `ARCHITECTURE.md` — describes technical system design (Expo + Supabase + modular folders).
+- `MVP_PLAN.md` — defines MVP milestones, rollout goals, and development roadmap.
+- `ROLE_MODEL.md` — defines user roles (Artist, Venue, Member) and their UI/feature distinctions.
+- `GROWTH_INFRASTRUCTURE.md` — documents long-term hardware and scaling strategy.
+
+These files serve as the canonical source of truth for project direction, user experience, and architectural intent.  
+When building new features or refactoring code, **assume these reference documents are always loaded context** and align implementation details with them.
+
+---
+
 
    If anything here is unclear or you want more examples (e.g. preferred test harnesses, how we run DB migrations), tell me which sections to expand and I will iterate.
