@@ -3,14 +3,14 @@ import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Button,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View
+    ActivityIndicator,
+    Alert,
+    Button,
+    Pressable,
+    ScrollView,
+    Text,
+    TextInput,
+    View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import GlassCard from "src/components/ui/GlassCard";
@@ -20,6 +20,7 @@ import { useAuth } from "src/providers/AuthProvider";
 import { useThemeMode } from "src/theme/ThemeModeProvider";
 
 function ProfileTopBar({ handle }: { handle: string }) {
+  const { colors } = useThemeMode();
   return (
     <View
       style={{
@@ -32,19 +33,19 @@ function ProfileTopBar({ handle }: { handle: string }) {
       {/* left */}
       <View style={{ width: 48, alignItems: "flex-start" }}>
         {/* add icon placeholder */}
-        <Text style={{ fontSize: 24, opacity: 0.85 }}>＋</Text>
+        <Text style={{ fontSize: 24, opacity: 0.85, color: colors.text }}>＋</Text>
       </View>
 
       {/* center */}
       <View style={{ flex: 1, alignItems: "center" }}>
-        <Text style={{ fontSize: 20, fontWeight: "700" }}>{handle}</Text>
+        <Text style={{ fontSize: 20, fontWeight: "700", color: colors.text }}>{handle}</Text>
       </View>
 
       {/* right */}
       <View style={{ width: 48, flexDirection: "row", justifyContent: "flex-end", gap: 8 }}>
         {/* inbox + menu placeholders */}
-        <Text style={{ fontSize: 18, opacity: 0.85 }}>◎</Text>
-        <Text style={{ fontSize: 18, opacity: 0.85 }}>≡</Text>
+        <Text style={{ fontSize: 18, opacity: 0.85, color: colors.text }}>◎</Text>
+        <Text style={{ fontSize: 18, opacity: 0.85, color: colors.text }}>≡</Text>
       </View>
     </View>
   );
@@ -286,25 +287,25 @@ export default function ProfileScreen() {
         <View style={{ width: "100%", maxWidth: 640, paddingHorizontal: 16, marginTop: 10 }}>
           <GlassCard>
             <View style={{ padding: 14 }}>
-              <Text style={{ fontWeight: "700" }}>Your dashboard</Text>
-              <Text style={{ marginTop: 2, opacity: 0.7 }}>Audience insights, inspiration and tools.</Text>
+              <Text style={{ fontWeight: "700", color: colors.text }}>Your dashboard</Text>
+              <Text style={{ marginTop: 2, opacity: 0.7, color: colors.text }}>Audience insights, inspiration and tools.</Text>
             </View>
           </GlassCard>
 
           <View style={{ flexDirection: "row", gap: 10, marginTop: 10 }}>
             <GlassCard style={{ flex: 1 }}>
               <View style={{ paddingVertical: 12, alignItems: "center" }}>
-                <Text style={{ fontWeight: "600" }}>Edit profile</Text>
+                <Text style={{ fontWeight: "600", color: colors.text }}>Edit profile</Text>
               </View>
             </GlassCard>
             <GlassCard style={{ flex: 1 }}>
               <View style={{ paddingVertical: 12, alignItems: "center" }}>
-                <Text style={{ fontWeight: "600" }}>Share profile</Text>
+                <Text style={{ fontWeight: "600", color: colors.text }}>Share profile</Text>
               </View>
             </GlassCard>
             <GlassCard>
               <View style={{ width: 44, height: 44, alignItems: "center", justifyContent: "center" }}>
-                <Text style={{ fontSize: 18 }}>＋</Text>
+                <Text style={{ fontSize: 18, color: colors.text }}>＋</Text>
               </View>
             </GlassCard>
           </View>
