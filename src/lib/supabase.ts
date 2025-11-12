@@ -1,5 +1,5 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
+import { Platform } from 'react-native';
 
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const key = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -15,12 +15,23 @@ if (__DEV__) {
   } catch {}
 }
 
+// Use AsyncStorage only on native. On web, let Supabase use localStorage.
+let nativeStorage: any = undefined;
+if (Platform.OS !== 'web') {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    nativeStorage = require('@react-native-async-storage/async-storage').default;
+  } catch {}
+}
+
+const authOptions: any = {
+  autoRefreshToken: true,
+  persistSession: true,
+  // We are not using web URL callbacks in Expo Go
+  detectSessionInUrl: false,
+};
+if (nativeStorage) authOptions.storage = nativeStorage;
+
 export const supabase = createClient(url, key, {
-  auth: {
-    storage: AsyncStorage,
-    autoRefreshToken: true,
-    persistSession: true,
-    // We are not using web URL callbacks in Expo Go
-    detectSessionInUrl: false
-  }
+  auth: authOptions,
 });
