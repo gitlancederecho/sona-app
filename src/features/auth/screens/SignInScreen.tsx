@@ -1,21 +1,21 @@
 // src/features/auth/screens/SignInScreen.tsx
-import AuthContainer from "@/src/components/AuthContainer";
-import GlassCard from "@/src/components/ui/GlassCard";
-import { useAuth } from "@/src/providers/AuthProvider";
-import { useThemeMode } from "@/src/theme/ThemeModeProvider";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import AuthContainer from "src/components/AuthContainer";
+import GlassCard from "src/components/ui/GlassCard";
+import { useAuth } from "src/providers/AuthProvider";
+import { useThemeMode } from "src/theme/ThemeModeProvider";
 
 const MAX_W = 640;
 const H_PAD = 16;
