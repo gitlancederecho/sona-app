@@ -1,0 +1,2 @@
+-- Placeholder migration (no-op). Kept for history.
+-- If you add a trigger/function to auto-create profiles, put it here.
