@@ -54,14 +54,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const { data, error } = await supabase
         .from("users")
-        .select("id")
+        .select("id, handle")
         .eq("id", uid)
         .maybeSingle();
 
-      if (!error && !data) {
+      if (error) return;
+
+      // Generate a base handle from email prefix or id slice
+      const email = session?.user?.email || '';
+      const baseFromEmail = email.split('@')[0] || '';
+      const sanitize = (v: string) => v
+        .toLowerCase()
+        .replace(/[^a-z0-9_]+/g, '')
+        .replace(/__+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .slice(0, 24);
+      let base = sanitize(baseFromEmail);
+      if (!base) base = 'user_' + uid.slice(0, 6);
+
+      async function generateUniqueHandle(initial: string): Promise<string> {
+        let attempt = initial;
+        let suffix = 0;
+        while (true) {
+          const { data: existing } = await supabase
+            .from('users')
+            .select('id')
+            .eq('handle', attempt)
+            .limit(1);
+          if (!existing || existing.length === 0) return attempt;
+          suffix++;
+          attempt = `${initial}_${suffix}`;
+        }
+      }
+
+      if (!data) {
+        const uniqueHandle = await generateUniqueHandle(base);
         await supabase
-          .from("users")
-          .insert({ id: uid, name: "", bio: "", avatar_url: null });
+          .from('users')
+          .insert({ id: uid, name: '', bio: '', avatar_url: null, handle: uniqueHandle });
+        return;
+      }
+
+      // Row exists but handle might be missing (older rows before migration)
+      if (!data.handle) {
+        const uniqueHandle = await generateUniqueHandle(base);
+        await supabase
+          .from('users')
+          .update({ handle: uniqueHandle })
+          .eq('id', uid);
       }
     }
     ensureProfile();

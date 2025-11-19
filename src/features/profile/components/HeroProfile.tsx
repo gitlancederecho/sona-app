@@ -49,6 +49,11 @@ export default function HeroProfile({ user }: Props) {
                     <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
                         {user.name || "Unnamed"}
                     </Text>
+                    {!!user.handle && (
+                        <Text style={[styles.handleDecor, { color: colors.text }]} numberOfLines={1}>
+                            @{user.handle}
+                        </Text>
+                    )}
 
                     <View style={styles.statsRight}>
                         <View style={styles.statBox}>
@@ -70,15 +75,7 @@ export default function HeroProfile({ user }: Props) {
 
             </View>
 
-            {/* Handle row */}
-            {!!user.handle && (
-                <View style={styles.handleRow}>
-                    <Text style={{ fontSize: 14, color: colors.text, opacity: 0.7 }}>◎</Text>
-                    <Text style={[styles.handleText, { color: colors.text }]} numberOfLines={1}>
-                        @{user.handle}
-                    </Text>
-                </View>
-            )}
+            {/* (Moved handle under display name) */}
 
             {/* Bio */}
             {!!user.bio && (
@@ -175,6 +172,13 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         alignSelf: "flex-start",
     },
+    handleDecor: {
+        fontSize: 13,
+        fontWeight: "500",
+        opacity: 0.65,
+        marginTop: -2,
+        marginBottom: 4,
+    },
 
     // 3 equal columns; center stays under the centered name. Space scales on any device width.
     statsRight: {
@@ -199,16 +203,8 @@ const styles = StyleSheet.create({
         opacity: 0.7,
     },
 
-    handleRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 8,
-        marginTop: 12,
-    },
-    handleText: {
-        fontSize: 14,
-        opacity: 0.85,
-    },
+    handleRow: { },
+    handleText: { },
 
     bio: {
         marginTop: 12,

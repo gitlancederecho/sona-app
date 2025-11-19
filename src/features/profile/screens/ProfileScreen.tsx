@@ -1,7 +1,7 @@
 // src/features/profile/screens/ProfileScreen.tsx
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
@@ -58,10 +58,24 @@ export default function ProfileScreen() {
   // profile fields
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
+  const [handle, setHandle] = useState("");
 
   // track initial values so Save disables when nothing changed
   const [initialName, setInitialName] = useState("");
   const [initialBio, setInitialBio] = useState("");
+  const [initialHandle, setInitialHandle] = useState("");
+
+  // handle validation & availability
+  const [handleStatus, setHandleStatus] = useState<"idle"|"checking"|"available"|"taken"|"invalid">("idle");
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  function validateHandleFormat(v: string) {
+    if (v.length < 3 || v.length > 30) return false;
+    if (!/^[a-z0-9_]+$/.test(v)) return false;
+    if (/__+/.test(v)) return false;
+    if (/^_|_$/.test(v)) return false;
+    return true;
+  }
 
   // avatar state
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -78,7 +92,7 @@ export default function ProfileScreen() {
   const userModel = {
     id: user!.id,
     name,
-    handle: name ? name.toLowerCase().replace(/\s+/g, "") : undefined,
+    handle: handle || undefined,
     avatar_url: avatarUrl,
     followers: 0,
     following: 0,
@@ -92,7 +106,7 @@ export default function ProfileScreen() {
       if (!user) return;
       const { data, error } = await supabase
         .from("users")
-        .select("name, bio, avatar_url")
+        .select("name, bio, avatar_url, handle")
         .eq("id", user.id)
         .maybeSingle();
 
@@ -100,11 +114,14 @@ export default function ProfileScreen() {
 
       const n = data?.name ?? "";
       const b = data?.bio ?? "";
+      const h = data?.handle ?? "";
 
       setName(n);
       setBio(b);
       setInitialName(n);
       setInitialBio(b);
+      setHandle(h);
+      setInitialHandle(h);
       setAvatarUrl(data?.avatar_url ?? null);
     }
     load();
@@ -113,14 +130,19 @@ export default function ProfileScreen() {
     };
   }, [user]);
 
-  const hasChanges = name !== initialName || bio !== initialBio;
+  const hasChanges = name !== initialName || bio !== initialBio || handle !== initialHandle;
 
   async function onSave() {
     if (!user || isSaving || !hasChanges) return;
+    if (handleStatus === 'checking' || handleStatus === 'invalid' || handleStatus === 'taken') return;
     setIsSaving(true);
 
     const started = Date.now();
-    const { error } = await supabase.from("users").update({ name, bio }).eq("id", user.id);
+    const updateBody: Record<string, any> = {};
+    if (name !== initialName) updateBody.name = name;
+    if (bio !== initialBio) updateBody.bio = bio;
+    if (handle !== initialHandle) updateBody.handle = handle;
+    const { error } = await supabase.from("users").update(updateBody).eq("id", user.id);
 
     const elapsed = Date.now() - started;
     if (elapsed < MIN_SPINNER_MS) await wait(MIN_SPINNER_MS - elapsed);
@@ -134,7 +156,34 @@ export default function ProfileScreen() {
     // lock Save again until something changes
     setInitialName(name);
     setInitialBio(bio);
+    setInitialHandle(handle);
   }
+
+  // Debounced handle availability check
+  useEffect(() => {
+    if (handle === initialHandle) {
+      setHandleStatus('idle');
+      return;
+    }
+    const v = handle.trim().toLowerCase();
+    setHandle(v);
+    if (!validateHandleFormat(v)) {
+      setHandleStatus('invalid');
+      return;
+    }
+    setHandleStatus('checking');
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      const { data } = await supabase
+        .from('users')
+        .select('id')
+        .eq('handle', v)
+        .limit(1);
+      if (!data || data.length === 0) setHandleStatus('available');
+      else if (data[0].id === user!.id) setHandleStatus('idle'); // unchanged (own row)
+      else setHandleStatus('taken');
+    }, 500);
+  }, [handle]);
 
   async function onPickAvatar() {
     if (isLoading || !user) return;
@@ -347,6 +396,33 @@ export default function ProfileScreen() {
             }}
           />
 
+          {/* Handle */}
+          <TextInput
+            placeholder="Username"
+            autoCapitalize="none"
+            autoCorrect={false}
+            placeholderTextColor={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
+            value={handle}
+            onChangeText={setHandle}
+            style={{
+              borderWidth: 1,
+              borderColor: handleStatus === 'invalid' || handleStatus === 'taken'
+                ? '#D84A4A'
+                : (isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'),
+              color: colors.text,
+              padding: 14,
+              borderRadius: 12,
+              backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
+            }}
+          />
+          <Text style={{ fontSize: 12, marginTop: 4, color: colors.text, opacity: 0.7 }}>
+            {handleStatus === 'idle' && 'Stable public username.'}
+            {handleStatus === 'checking' && 'Checking availability…'}
+            {handleStatus === 'available' && 'Available ✓'}
+            {handleStatus === 'taken' && 'Already taken ✕'}
+            {handleStatus === 'invalid' && '3–30 chars; a–z, 0–9, underscores (no double or edge underscores).'}
+          </Text>
+
           {/* Bio */}
           <TextInput
             placeholder="Bio"
@@ -366,7 +442,7 @@ export default function ProfileScreen() {
           {/* Save */}
           <Pressable
             onPress={onSave}
-            disabled={isSaving || !hasChanges}
+            disabled={isSaving || !hasChanges || handleStatus === 'checking' || handleStatus === 'invalid' || handleStatus === 'taken'}
             style={{
               backgroundColor: colors.accent,
               paddingVertical: 16,
