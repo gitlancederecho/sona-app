@@ -376,7 +376,7 @@ export default function ProfileScreen() {
               justifyContent: "center",
             }}
           >
-            {isSaving ? <ActivityIndicator /> : <Text style={{ color: "#0B0B0F", fontWeight: "700" }}>Save</Text>}
+            {isSaving ? <ActivityIndicator /> : <Text style={{ color: colors.textOnAccent, fontWeight: "700" }}>Save</Text>}
           </Pressable>
         </View>
       </ScrollView>

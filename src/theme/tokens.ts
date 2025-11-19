@@ -3,6 +3,7 @@ export const lightPalette = {
     bgAlt: '#E9EAEC',
     text: '#0B0B0F',
     accent: '#99C7FF',
+    textOnAccent: '#0B0B0F', // readable over light blue accent
     glassTint: 'rgba(255,255,255,0.55)',
     glassBorder: 'rgba(255,255,255,0.25)',
     card: "rgba(0,0,0,0.06)", // subtle shadowed glass in light mode
@@ -13,6 +14,7 @@ export const darkPalette = {
     bgAlt: '#101218',
     text: '#F5F5F7',
     accent: '#99C7FF',
+    textOnAccent: '#0B0B0F', // same dark text for contrast on accent pill
     glassTint: 'rgba(16,18,24,0.55)',
     glassBorder: 'rgba(255,255,255,0.1)',
     card: "rgba(255,255,255,0.08)", // frosted glass effect for dark mode
