@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const { data, error } = await supabase
         .from("users")
-        .select("id, handle")
+        .select("id, handle, email")
         .eq("id", uid)
         .maybeSingle();
 
@@ -91,17 +91,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const uniqueHandle = await generateUniqueHandle(base);
         await supabase
           .from('users')
-          .insert({ id: uid, name: '', bio: '', avatar_url: null, handle: uniqueHandle });
+          .insert({ id: uid, name: '', bio: '', avatar_url: null, handle: uniqueHandle, email });
         return;
       }
 
-      // Row exists but handle might be missing (older rows before migration)
+      const updates: Record<string, any> = {};
       if (!data.handle) {
-        const uniqueHandle = await generateUniqueHandle(base);
-        await supabase
-          .from('users')
-          .update({ handle: uniqueHandle })
-          .eq('id', uid);
+        updates.handle = await generateUniqueHandle(base);
+      }
+      if (!data.email && email) {
+        updates.email = email;
+      }
+      if (Object.keys(updates).length > 0) {
+        await supabase.from('users').update(updates).eq('id', uid);
       }
     }
     ensureProfile();

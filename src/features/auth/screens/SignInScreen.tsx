@@ -14,6 +14,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AuthContainer from "src/components/AuthContainer";
 import GlassCard from "src/components/ui/GlassCard";
+import { supabase } from "src/lib/supabase";
 import { useAuth } from "src/providers/AuthProvider";
 import { useThemeMode } from "src/theme/ThemeModeProvider";
 
@@ -26,22 +27,42 @@ export default function SignInScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState(""); // email or handle
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
   async function onSubmit() {
-    if (!email.trim() || !password) {
-      setErr("Email and password required");
+    if (!identifier.trim() || !password) {
+      setErr("Email/username and password required");
       return;
     }
     setErr(null);
   setNotice(null);
     setLoading(true);
     try {
-      const { error } = await signInWithEmail(email.trim(), password);
+      const raw = identifier.trim();
+      let emailToUse: string | null = null;
+      if (raw.includes('@')) {
+        emailToUse = raw.toLowerCase();
+      } else {
+        // treat as handle: look up email
+        const handle = raw.toLowerCase();
+        const { data: userRow, error: lookupErr } = await supabase
+          .from('users')
+          .select('email')
+          .eq('handle', handle)
+          .maybeSingle();
+        if (lookupErr || !userRow?.email) {
+          // Generic error to avoid enumeration
+          setLoading(false);
+          setErr("Invalid credentials.");
+          return;
+        }
+        emailToUse = userRow.email.toLowerCase();
+      }
+      const { error } = await signInWithEmail(emailToUse!, password);
       setLoading(false);
       if (!error) {
         router.replace("/(tabs)");
@@ -63,13 +84,18 @@ export default function SignInScreen() {
   }
 
   async function onForgotPassword() {
-    if (!email.trim()) {
-      setErr("Enter your email above first");
+    if (!identifier.trim()) {
+      setErr("Enter your email first");
       return;
     }
     setErr(null);
     setNotice(null);
-    const { error } = await resetPassword(email.trim());
+    const raw = identifier.trim();
+    if (!raw.includes('@')) {
+      setErr('Password reset requires your email address.');
+      return;
+    }
+    const { error } = await resetPassword(raw.toLowerCase());
     if (error) {
       setErr(normalizeAuthError(error.message));
       if (__DEV__) console.log("[auth] reset password error:", error);
@@ -107,10 +133,10 @@ export default function SignInScreen() {
           <GlassCard style={{ marginTop: 16 }}>
             <View style={{ padding: 16, gap: 12 }}>
               <GlassInput
-                label="Email"
-                value={email}
-                onChangeText={setEmail}
-                placeholder="you@example.com"
+                label="Email or Username"
+                value={identifier}
+                onChangeText={setIdentifier}
+                placeholder="you@example or yourhandle"
                 autoCapitalize="none"
                 keyboardType="email-address"
                 colors={colors}
