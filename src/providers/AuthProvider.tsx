@@ -1,5 +1,6 @@
 // src/providers/AuthProvider.tsx
-import { Session, User } from "@supabase/supabase-js";
+import { AuthError, Session, User } from "@supabase/supabase-js";
+import * as Linking from "expo-linking";
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { supabase } from "src/lib/supabase";
@@ -7,8 +8,15 @@ import { supabase } from "src/lib/supabase";
 type AuthContextType = {
   session: Session | null;
   user: User | null;
-  signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
-  signUpWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
+  signInWithEmail: (
+    email: string,
+    password: string
+  ) => Promise<{ error: AuthError | null }>;
+  signUpWithEmail: (
+    email: string,
+    password: string
+  ) => Promise<{ error: AuthError | null }>;
+  resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
 };
 
@@ -39,40 +47,102 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-    useEffect(() => {
+  useEffect(() => {
     async function ensureProfile() {
-        const uid = session?.user?.id;
-        if (!uid) return;
+      const uid = session?.user?.id;
+      if (!uid) return;
 
-        const { data, error } = await supabase
+      const { data, error } = await supabase
         .from("users")
-        .select("id")
+        .select("id, handle, email")
         .eq("id", uid)
         .maybeSingle();
 
-        if (!error && !data) {
-        await supabase.from("users").insert({ id: uid, name: "", bio: "", avatar_url: null });
+      if (error) return;
+
+      // Generate a base handle from email prefix or id slice
+      const email = session?.user?.email || '';
+      const baseFromEmail = email.split('@')[0] || '';
+      const sanitize = (v: string) => v
+        .toLowerCase()
+        .replace(/[^a-z0-9_]+/g, '')
+        .replace(/__+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .slice(0, 24);
+      let base = sanitize(baseFromEmail);
+      if (!base) base = 'user_' + uid.slice(0, 6);
+
+      async function generateUniqueHandle(initial: string): Promise<string> {
+        let attempt = initial;
+        let suffix = 0;
+        while (true) {
+          const { data: existing } = await supabase
+            .from('users')
+            .select('id')
+            .eq('handle', attempt)
+            .limit(1);
+          if (!existing || existing.length === 0) return attempt;
+          suffix++;
+          attempt = `${initial}_${suffix}`;
         }
+      }
+
+      if (!data) {
+        const uniqueHandle = await generateUniqueHandle(base);
+        await supabase
+          .from('users')
+          .insert({ id: uid, name: '', bio: '', avatar_url: null, handle: uniqueHandle, email });
+        return;
+      }
+
+      const updates: Record<string, any> = {};
+      if (!data.handle) {
+        updates.handle = await generateUniqueHandle(base);
+      }
+      if (!data.email && email) {
+        updates.email = email;
+      }
+      if (Object.keys(updates).length > 0) {
+        await supabase.from('users').update(updates).eq('id', uid);
+      }
     }
     ensureProfile();
-    }, [session]);
+  }, [session]);
 
+  const value = useMemo<AuthContextType>(
+    () => ({
+      session,
+      user: session?.user ?? null,
 
-  const value = useMemo<AuthContextType>(() => ({
-    session,
-    user: session?.user ?? null,
-    async signInWithEmail(email, password) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      return { error: error?.message };
-    },
-    async signUpWithEmail(email, password) {
-      const { error } = await supabase.auth.signUp({ email, password });
-      return { error: error?.message };
-    },
-    async signOut() {
-      await supabase.auth.signOut();
-    },
-  }), [session]);
+      async signInWithEmail(email, password) {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        return { error }; // return full AuthError object (or null)
+      },
+
+      async signUpWithEmail(email, password) {
+        const { error } = await supabase.auth.signUp({ email, password });
+        return { error }; // same shape
+      },
+
+      async resetPassword(email) {
+        // Expo Go: use exp:// deep link so the email link opens the dev app
+        // Standalone build will still work with custom scheme because Supabase will prefer this explicit redirect
+        const redirectTo = Linking.createURL('/auth/reset');
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo,
+        });
+        return { error };
+      },
+
+      async signOut() {
+        await supabase.auth.signOut();
+      },
+    }),
+    [session]
+  );
 
   if (loading) {
     return (

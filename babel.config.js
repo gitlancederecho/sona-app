@@ -9,6 +9,7 @@ module.exports = function (api) {
         {
           root: ["./"],
           alias: {
+            "@": "./src",   // allows "@/..." imports
             src: "./src", // so you can import from "src/..." cleanly
           },
         },
