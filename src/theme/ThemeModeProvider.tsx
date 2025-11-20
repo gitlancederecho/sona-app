@@ -37,15 +37,18 @@ export const ThemeModeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const colors = mode === 'dark' ? darkPalette : lightPalette;
   const isDark = mode === 'dark';
 
-  const AmbientCrossfade: ThemeCtx['AmbientCrossfade'] = ({ children }) => {
-    const style = useAnimatedStyle(() => {
-      const bg = interpolateColor(progress.value, [0, 1], [lightPalette.bg, darkPalette.bg]);
-      return { backgroundColor: bg, flex: 1 };
-    });
-    return <Animated.View style={style}>{children}</Animated.View>;
-  };
+  const AmbientCrossfade: ThemeCtx['AmbientCrossfade'] = useMemo(() => {
+    const Comp: ThemeCtx['AmbientCrossfade'] = ({ children }) => {
+      const style = useAnimatedStyle(() => {
+        const bg = interpolateColor(progress.value, [0, 1], [lightPalette.bg, darkPalette.bg]);
+        return { backgroundColor: bg, flex: 1 };
+      });
+      return <Animated.View style={style}>{children}</Animated.View>;
+    };
+    return Comp;
+  }, []);
 
-  const value = useMemo(() => ({ mode, colors, isDark, AmbientCrossfade }), [mode, colors, isDark]);
+  const value = useMemo(() => ({ mode, colors, isDark, AmbientCrossfade }), [mode, colors, isDark, AmbientCrossfade]);
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
