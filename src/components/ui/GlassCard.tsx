@@ -2,7 +2,7 @@ import { BlurView } from "expo-blur";
 import React from "react";
 import { StyleSheet, View, ViewProps } from "react-native";
 import { useThemeMode } from "src/theme/ThemeModeProvider";
-import { radius, shadow } from "src/theme/tokens";
+import { radius, shadow, spacing } from "src/theme/tokens";
 
 type Props = ViewProps & {
     intensity?: number;              // blur amount (0–100ish)
@@ -27,8 +27,22 @@ export const GlassCard: React.FC<Props> = ({
 
     return (
         <View style={[styles.wrap, shadow.card, style]} {...rest}>
+            {/* Background blur */}
             <BlurView intensity={intensity} tint={blurTint} style={StyleSheet.absoluteFill} />
-            {/* subtle top-left sheen */}
+
+            {/* Tinted overlay for stronger glass presence */}
+            <View
+                pointerEvents="none"
+                style={[
+                    StyleSheet.absoluteFillObject,
+                    {
+                        backgroundColor: colors.glassTint,
+                        opacity: isDark ? 0.85 : 0.9,
+                    },
+                ]}
+            />
+
+            {/* subtle top sheen */}
             {sheen && (
                 <View
                     pointerEvents="none"
@@ -45,10 +59,11 @@ export const GlassCard: React.FC<Props> = ({
                     }}
                 />
             )}
+
             <View
                 style={[
                     styles.inner,
-                    { padding: padding ?? 16 },
+                    { padding: padding ?? spacing.sm },
                     border && { borderColor: colors.glassBorder, borderWidth: StyleSheet.hairlineWidth },
                 ]}
             >

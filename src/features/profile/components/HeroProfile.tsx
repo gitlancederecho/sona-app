@@ -1,8 +1,8 @@
 // src/features/profile/components/HeroProfile.tsx
 import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeMode } from "src/theme/ThemeModeProvider";
+import { spacing } from "src/theme/tokens";
 
 type Props = {
     user: {
@@ -19,10 +19,9 @@ type Props = {
 
 export default function HeroProfile({ user }: Props) {
     const { colors } = useThemeMode();
-    const insets = useSafeAreaInsets();
 
     return (
-        <View style={[styles.wrap, { paddingTop: Math.max(insets.top, 6) + 12 }]}>
+        <View style={[styles.wrap, { paddingTop: spacing.xs }]}> 
             {/* Row: avatar on the left, right side has name on top of stats */}
             <View style={styles.topRow}>
                 {/* Avatar with + badge */}
@@ -49,26 +48,22 @@ export default function HeroProfile({ user }: Props) {
                     <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
                         {user.name || "Unnamed"}
                     </Text>
-                    {!!user.handle && (
-                        <Text style={[styles.handleDecor, { color: colors.text }]} numberOfLines={1}>
-                            @{user.handle}
-                        </Text>
-                    )}
+                    {/* Handle hidden here since it's already shown in the top bar */}
 
                     <View style={styles.statsRight}>
                         <View style={styles.statBox}>
                             <Text style={[styles.statValue, { color: colors.text }]}>{user.moments ?? 0}</Text>
-                            <Text style={[styles.statLabel, { color: colors.text }]}>Moments</Text>
+                            <Text style={[styles.statLabel, { color: colors.text }]}>moments</Text>
                         </View>
 
                         <View style={styles.statBox}>
                             <Text style={[styles.statValue, { color: colors.text }]}>{user.followers ?? 0}</Text>
-                            <Text style={[styles.statLabel, { color: colors.text }]}>Followers</Text>
+                            <Text style={[styles.statLabel, { color: colors.text }]}>followers</Text>
                         </View>
 
                         <View style={styles.statBox}>
                             <Text style={[styles.statValue, { color: colors.text }]}>{user.following ?? 0}</Text>
-                            <Text style={[styles.statLabel, { color: colors.text }]}>Following</Text>
+                            <Text style={[styles.statLabel, { color: colors.text }]}>following</Text>
                         </View>
                     </View>
                 </View>
@@ -109,7 +104,7 @@ function StatBox({
     );
 }
 
-const AVATAR = 128;
+const AVATAR = 96;
 const MAX_W = 640;
 const H_PAD = 16;
 
@@ -127,8 +122,8 @@ const styles = StyleSheet.create({
     topRow: {
         flexDirection: "row",
         alignItems: "center",
-        gap: 16,
-        marginTop: 8,
+        gap: spacing.sm,
+        marginTop: spacing.xs,
     },
 
     avatarWrap: {
@@ -151,9 +146,9 @@ const styles = StyleSheet.create({
         position: "absolute",
         right: -4,
         bottom: -4,
-        width: 28,
-        height: 28,
-        borderRadius: 14,
+        width: 24,
+        height: 24,
+        borderRadius: 12,
         alignItems: "center",
         justifyContent: "center",
         borderWidth: 2, // borderColor set from theme in render
@@ -162,18 +157,18 @@ const styles = StyleSheet.create({
     // Right column holds name and stats. Name is centered so it aligns over the middle stat box.
     rightCol: {
         flex: 1,
-        marginLeft: 16,
+        marginLeft: spacing.sm,
         alignItems: "flex-start",
     },
     name: {
-        fontSize: 22,
-        lineHeight: 26,
+        fontSize: 18,
+        lineHeight: 22,
         fontWeight: "700",
-        marginBottom: 8,
+        marginBottom: spacing.sm,
         alignSelf: "flex-start",
     },
     handleDecor: {
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: "500",
         opacity: 0.65,
         marginTop: -2,
@@ -190,25 +185,27 @@ const styles = StyleSheet.create({
     statBox: {
         flex: 1,
         alignItems: "flex-start",
-        minWidth: 72, // prevents collapse on very small phones
+        minWidth: 64, // prevents collapse on very small phones
     },
     statValue: {
         fontSize: 16,
         fontWeight: "700",
-        lineHeight: 20,
+        lineHeight: 22,
     },
     statLabel: {
-        marginTop: 2,
-        fontSize: 12,
-        opacity: 0.7,
+        marginTop: 1,
+        fontSize: 13,
+        fontWeight: "600",
+        lineHeight: 16,
+        opacity: 0.75,
     },
 
     handleRow: { },
     handleText: { },
 
     bio: {
-        marginTop: 12,
-        fontSize: 14,
-        lineHeight: 20,
+        marginTop: spacing.sm,
+        fontSize: 13,
+        lineHeight: 18,
     },
 });

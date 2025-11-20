@@ -10,18 +10,12 @@ import HeroProfile from "src/features/profile/components/HeroProfile";
 import { supabase } from "src/lib/supabase";
 import { useAuth } from "src/providers/AuthProvider";
 import { useThemeMode } from "src/theme/ThemeModeProvider";
+import { spacing } from "src/theme/tokens";
 
 function ProfileTopBar({ handle }: { handle: string }) {
   const { colors } = useThemeMode();
   return (
-    <View
-      style={{
-        height: 56,
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 12,
-      }}
-    >
+    <View style={{ height: 48, flexDirection: "row", alignItems: "center", paddingHorizontal: spacing.sm }}>
       {/* left */}
       <View style={{ width: 48, alignItems: "flex-start" }}>
         {/* add icon placeholder */}
@@ -34,10 +28,10 @@ function ProfileTopBar({ handle }: { handle: string }) {
       </View>
 
       {/* right */}
-      <View style={{ width: 48, flexDirection: "row", justifyContent: "flex-end", gap: 8 }}>
+      <View style={{ width: 48, flexDirection: "row", justifyContent: "flex-end", gap: spacing.xs }}>
         {/* inbox + menu placeholders */}
-        <Text style={{ fontSize: 18, opacity: 0.85, color: colors.text }}>◎</Text>
-        <Text style={{ fontSize: 18, opacity: 0.85, color: colors.text }}>≡</Text>
+        <Text style={{ fontSize: 16, opacity: 0.85, color: colors.text }}>◎</Text>
+        <Text style={{ fontSize: 16, opacity: 0.85, color: colors.text }}>≡</Text>
       </View>
     </View>
   );
@@ -111,7 +105,7 @@ export default function ProfileScreen() {
 
         {userModel && <HeroProfile user={userModel} />}
 
-        <View style={{ width: "100%", maxWidth: 640, paddingHorizontal: 16, marginTop: 12 }}>
+        <View style={{ width: "100%", maxWidth: 640, paddingHorizontal: spacing.sm, marginTop: spacing.sm }}>
           <GlassCard sheen>
             <View style={{ padding: 16 }}>
               <Text style={{ fontSize: 16, fontWeight: "700", color: colors.text }}>Your dashboard</Text>
@@ -119,23 +113,25 @@ export default function ProfileScreen() {
             </View>
           </GlassCard>
 
-          <View style={{ flexDirection: "row", gap: 12, marginTop: 12 }}>
-            <GlassCard style={{ flex: 1 }}>
+          <View style={{ flexDirection: "row", gap: spacing.sm, marginTop: spacing.sm, alignItems: 'center' }}>
+            <GlassCard style={{ flex: 1 }} padding={0} sheen>
               <Link href="/(tabs)/edit-profile" asChild>
-                <Pressable style={{ paddingVertical: 14, alignItems: 'center' }}>
-                  <Text style={{ fontWeight: '600', color: colors.text }}>Edit profile</Text>
+                <Pressable style={{ height: 40, alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>Edit profile</Text>
                 </Pressable>
               </Link>
             </GlassCard>
-            <GlassCard style={{ flex: 1 }}>
-              <View style={{ paddingVertical: 14, alignItems: "center" }}>
-                <Text style={{ fontWeight: "600", color: colors.text }}>Share profile</Text>
-              </View>
+
+            <GlassCard style={{ flex: 1 }} padding={0} sheen>
+              <Pressable style={{ height: 40, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>Share profile</Text>
+              </Pressable>
             </GlassCard>
-            <GlassCard>
-              <View style={{ width: 48, height: 48, alignItems: "center", justifyContent: "center" }}>
-                <Text style={{ fontSize: 18, color: colors.text }}>＋</Text>
-              </View>
+
+            <GlassCard style={{ width: 40 }} padding={0}>
+              <Pressable style={{ height: 40, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ fontSize: 16, color: colors.text }}>＋</Text>
+              </Pressable>
             </GlassCard>
           </View>
         </View>
