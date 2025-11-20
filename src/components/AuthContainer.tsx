@@ -3,6 +3,7 @@ import React from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeMode } from "src/theme/ThemeModeProvider";
+import { spacing } from "src/theme/tokens";
 
 type Props = { children: React.ReactNode };
 
@@ -20,13 +21,13 @@ export default function AuthContainer({ children }: Props) {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
             flexGrow: 1,
-            paddingHorizontal: 24,
-            paddingTop: Math.max(24, insets.top),
-            paddingBottom: Math.max(24, insets.bottom),
+            paddingHorizontal: spacing.xl,
+            paddingTop: Math.max(spacing.xl, insets.top),
+            paddingBottom: Math.max(spacing.xl, insets.bottom),
             justifyContent: "center",
           }}
         >
-          <View style={{ gap: 12 }}>{children}</View>
+          <View style={{ gap: spacing.md }}>{children}</View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

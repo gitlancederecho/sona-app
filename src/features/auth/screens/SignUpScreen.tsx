@@ -1,14 +1,18 @@
 // src/features/auth/screens/SignUpScreen.tsx
 import { Link, useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
-import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import AuthContainer from "src/components/AuthContainer";
+import GlassCard from "src/components/ui/GlassCard";
 import { supabase } from "src/lib/supabase";
 import { useAuth } from "src/providers/AuthProvider";
+import { useThemeMode } from "src/theme/ThemeModeProvider";
+import { spacing } from "src/theme/tokens";
 
 export default function SignUpScreen() {
   const router = useRouter();
   const { signInWithEmail } = useAuth();
+  const { colors, isDark } = useThemeMode();
 
   const [handle, setHandle] = useState("");
   const [password, setPassword] = useState("");
@@ -81,47 +85,98 @@ export default function SignUpScreen() {
 
   return (
     <AuthContainer>
-      <Text style={{ fontSize: 28, fontWeight: "700" }}>Create account</Text>
+      <Text style={{ fontSize: 28, fontWeight: "700", color: colors.text }}>Create account</Text>
 
-      <View style={{ gap: 10, width: "100%" }}>
-        <TextInput
-          placeholder="Username"
-          autoCapitalize="none"
-          autoCorrect={false}
-          value={handle}
-          onChangeText={setHandle}
-          style={{ borderWidth: 1, borderColor: isHandleValid ? "#222" : "#c33", padding: 12, borderRadius: 10 }}
-        />
+      <GlassCard style={{ width: "100%", marginTop: spacing.md }} padding={spacing.md} sheen>
+        <View style={{ gap: spacing.md }}>
+          <LabeledInput
+            label="Username"
+            value={handle}
+            onChangeText={setHandle}
+            placeholder="yourhandle"
+            autoCapitalize="none"
+            autoCorrect={false}
+            isDark={isDark}
+            colors={colors}
+            borderColorOverride={isHandleValid ? undefined : "#c33"}
+          />
 
-        <TextInput
-          placeholder="Password"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-          style={{ borderWidth: 1, borderColor: "#222", padding: 12, borderRadius: 10 }}
-        />
+          <LabeledInput
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            placeholder="••••••••"
+            secureTextEntry
+            isDark={isDark}
+            colors={colors}
+          />
 
-        <TextInput
-          placeholder="Email (optional)"
-          autoCapitalize="none"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
-          style={{ borderWidth: 1, borderColor: "#222", padding: 12, borderRadius: 10 }}
-        />
+          <LabeledInput
+            label="Email (optional)"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="you@example.com"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            isDark={isDark}
+            colors={colors}
+          />
 
-        <Pressable
-          onPress={onSubmit}
-          disabled={loading}
-          style={{ marginTop: 8, alignSelf: "center", paddingVertical: 10, paddingHorizontal: 16, opacity: loading ? 0.7 : 1 }}
-        >
-          <Text style={{ fontSize: 18 }}>{loading ? "Creating…" : "Sign up"}</Text>
-        </Pressable>
-      </View>
+          <Pressable
+            onPress={onSubmit}
+            disabled={loading}
+            style={[
+              styles.primaryBtn,
+              {
+                backgroundColor: colors.card,
+                borderColor: isDark ? "rgba(255,255,255,0.16)" : "rgba(0,0,0,0.12)",
+                opacity: loading ? 0.7 : 1,
+              },
+            ]}
+          >
+            {loading ? (
+              <ActivityIndicator />
+            ) : (
+              <Text style={[styles.primaryBtnText, { color: colors.text }]}>Sign up</Text>
+            )}
+          </Pressable>
+        </View>
+      </GlassCard>
 
-      <Link href="/(auth)/sign-in" style={{ marginTop: 16, alignSelf: "center" }}>
-        <Text>Already have an account? Sign in</Text>
+      <Link href="/(auth)/sign-in" style={{ marginTop: spacing.md, alignSelf: "center" }}>
+        <Text style={{ color: colors.text, opacity: 0.8 }}>Already have an account? Sign in</Text>
       </Link>
     </AuthContainer>
   );
 }
+
+function LabeledInput({ label, colors, isDark, borderColorOverride, ...rest }: any) {
+  const bg = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)";
+  const border = borderColorOverride ?? (isDark ? "rgba(255,255,255,0.16)" : "rgba(0,0,0,0.12)");
+  return (
+    <View style={{ gap: spacing.xs }}>
+      <Text style={{ color: colors.text, opacity: 0.8, fontSize: 13 }}>{label}</Text>
+      <View style={{ backgroundColor: bg, borderColor: border, borderWidth: StyleSheet.hairlineWidth, borderRadius: 14 }}>
+        <TextInput
+          placeholderTextColor={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.45)"}
+          style={{ color: colors.text, paddingVertical: 12, paddingHorizontal: 14, fontSize: 16 }}
+          {...rest}
+        />
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  primaryBtn: {
+    marginTop: 2,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  primaryBtnText: {
+    fontSize: 16,
+    fontWeight: "700",
+  },
+});

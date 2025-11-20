@@ -105,7 +105,7 @@ export default function ProfileScreen() {
 
         {userModel && <HeroProfile user={userModel} />}
 
-        <View style={{ width: "100%", maxWidth: 640, paddingHorizontal: spacing.sm, marginTop: spacing.sm }}>
+        <View style={{ width: "100%", maxWidth: 640, paddingHorizontal: spacing.sm, marginTop: 0 }}>
           <GlassCard sheen>
             <View style={{ padding: 16 }}>
               <Text style={{ fontSize: 16, fontWeight: "700", color: colors.text }}>Your dashboard</Text>

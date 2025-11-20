@@ -61,7 +61,7 @@
 - **Principle:** “What would Steve Jobs do?” — prioritize simplicity, legibility, and focus. No clutter, no heavy gradients, no gratuitous decoration.  
 - **Core look:** subtle blur layers, light diffusion, and motion depth (using opacity, not shadows).  
 - **Layout grid:** 16-pt spacing rhythm, `maxWidth 640`, respect SafeArea insets on all devices.  
-- **Theme:** defined in `src/theme/tokens.ts` and `ThemeModeProvider.tsx` — always use `colors.bg`, `colors.text`, `colors.card`, `colors.accent` instead of hard-coded RGBA.  
+   - **Theme:** defined in `src/theme/tokens.ts` and `ThemeModeProvider.tsx` — always use `colors.bg`, `colors.text`, `colors.card`, and the accent tokens (`colors.accentGradient` or `colors.accentPrimary`) instead of hard-coded values.  
 - **Glass components:** `GlassCard`, `GlassPill`, and `GlassInput` are the canonical primitives for the “liquid” design language. Extend them instead of re-implementing blur views.  
 
 ### 10. Active branches & continuity

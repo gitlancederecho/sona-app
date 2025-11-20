@@ -27,7 +27,7 @@ const GlassPill: React.FC<Props> = ({ label, value, minWidth = 88, style, ...res
     >
       <Text style={[styles.label, { color: colors.text, opacity: 0.7 }]}>{label}</Text>
       {value !== undefined ? (
-        <Text style={[styles.value, { color: colors.accent }]}>{value}</Text>
+        <Text style={[styles.value, { color: colors.accentPrimary }]}>{value}</Text>
       ) : null}
     </View>
   );

@@ -2,14 +2,14 @@
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    ActivityIndicator,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AuthContainer from "src/components/AuthContainer";
@@ -17,9 +17,10 @@ import GlassCard from "src/components/ui/GlassCard";
 import { supabase } from "src/lib/supabase";
 import { useAuth } from "src/providers/AuthProvider";
 import { useThemeMode } from "src/theme/ThemeModeProvider";
+import { spacing } from "src/theme/tokens";
 
 const MAX_W = 640;
-const H_PAD = 16;
+const H_PAD = spacing.lg; // standard horizontal padding
 
 export default function SignInScreen() {
   const { colors, isDark } = useThemeMode();
@@ -130,8 +131,8 @@ export default function SignInScreen() {
           <Text style={[styles.brand, { color: colors.text }]}>SONA</Text>
           <Text style={[styles.subtitle, { color: colors.text, opacity: 0.7 }]}>Sign in</Text>
 
-          <GlassCard style={{ marginTop: 16 }}>
-            <View style={{ padding: 16, gap: 12 }}>
+          <GlassCard style={{ marginTop: spacing.lg }} padding={spacing.md} sheen>
+            <View style={{ gap: spacing.md }}>
               <GlassInput
                 label="Email or Username"
                 value={identifier}
@@ -174,16 +175,16 @@ export default function SignInScreen() {
                 )}
               </Pressable>
 
-              <Pressable style={{ alignSelf: "center", paddingVertical: 6 }} onPress={onForgotPassword}>
+              <Pressable style={{ alignSelf: "center", paddingVertical: spacing.xs }} onPress={onForgotPassword}>
                 <Text style={{ color: colors.text, opacity: 0.7, fontSize: 13 }}>Forgot password?</Text>
               </Pressable>
             </View>
           </GlassCard>
 
-          <View style={{ marginTop: 12, alignItems: "center", gap: 10 }}>
-            <GlassCard>
+          <View style={{ marginTop: spacing.md, alignItems: "center", gap: spacing.sm }}>
+            <GlassCard sheen>
               <Link href="/(auth)/sign-up" asChild>
-                <Pressable style={{ paddingVertical: 12, paddingHorizontal: 16 }}>
+                <Pressable style={{ paddingVertical: spacing.md, paddingHorizontal: spacing.md }}>
                   <Text style={{ color: colors.text, fontWeight: "600" }}>Create account</Text>
                 </Pressable>
               </Link>

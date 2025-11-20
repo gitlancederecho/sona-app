@@ -2,11 +2,11 @@ import React, { useMemo } from "react";
 import { Dimensions, StyleSheet } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 import Animated, {
-    Easing,
-    useAnimatedStyle,
-    useSharedValue,
-    withRepeat,
-    withTiming,
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
 } from "react-native-reanimated";
 import { useThemeMode } from "src/theme/ThemeModeProvider";
 
@@ -15,7 +15,7 @@ const { width, height } = Dimensions.get("window");
 const DOTS = 8;          // performance budget
 const DURATION = 8000;   // slow, calm drift
 
-const Dot: React.FC<{ i: number; isDark: boolean; t: SharedValue<number> }> = ({ i, isDark, t }) => {
+const Dot: React.FC<{ i: number; isDark: boolean; t: SharedValue<number>; bgColor: string }> = ({ i, isDark, t, bgColor }) => {
   const style = useAnimatedStyle(() => {
     const x = ((i * 97) % width) + (t.value - 0.5) * 22;   // tiny drift
     const y = ((i * 71) % height) + (t.value - 0.5) * 12;
@@ -25,14 +25,13 @@ const Dot: React.FC<{ i: number; isDark: boolean; t: SharedValue<number> }> = ({
       width: size,
       height: size,
       opacity: isDark ? 0.12 : 0.06,
-      backgroundColor: "#99C7FF",
     };
   });
-  return <Animated.View style={[styles.dot, style]} />;
+  return <Animated.View style={[styles.dot, style, { backgroundColor: bgColor }]} />;
 };
 
 export const BokehLayer: React.FC = () => {
-  const { isDark } = useThemeMode();
+  const { isDark, colors } = useThemeMode();
   const t = useSharedValue(0);
 
   React.useEffect(() => {
@@ -43,7 +42,7 @@ export const BokehLayer: React.FC = () => {
   return (
     <>
       {nodes.map((i) => (
-        <Dot key={i} i={i} isDark={isDark} t={t} />
+        <Dot key={i} i={i} isDark={isDark} t={t} bgColor={i % 2 === 0 ? colors.accentGradient.from : colors.accentGradient.to} />
       ))}
     </>
   );

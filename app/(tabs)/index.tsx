@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { Button, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "src/providers/AuthProvider";
+import { spacing } from "src/theme/tokens";
 
 export default function Home() {
   const { user, signOut } = useAuth();
@@ -16,7 +17,7 @@ export default function Home() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View style={{ padding: 24 }}>
+      <View style={{ padding: spacing.xl }}>
         <Text>Welcome, {user.email}</Text>
         <Button title="Sign out" onPress={signOut} />
       </View>

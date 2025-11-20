@@ -1,4 +1,5 @@
 // src/features/profile/components/HeroProfile.tsx
+import { LinearGradient } from 'expo-linear-gradient';
 import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { useThemeMode } from "src/theme/ThemeModeProvider";
@@ -26,16 +27,24 @@ export default function HeroProfile({ user }: Props) {
             <View style={styles.topRow}>
                 {/* Avatar with + badge */}
                 <View style={styles.avatarWrap}>
-                    <View style={[
-                        styles.avatarRing,
-                        { borderColor: colors.accent, backgroundColor: "transparent" },
-                    ]}>
-                        {user.avatar_url ? (
-                            <Image source={{ uri: user.avatar_url }} style={styles.avatar} />
-                        ) : (
-                            <View style={[styles.avatar, { backgroundColor: colors.card }]} />
-                        )}
-                    </View>
+                    {/* Thin neon-style ring with a subtle colored bloom */}
+                    <LinearGradient
+                        colors={[colors.accentGradient.from, colors.accentGradient.to]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.avatarNeonBloom}
+                    />
+                    <LinearGradient
+                        colors={[colors.accentGradient.from, colors.accentGradient.to]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.avatarNeonRing}
+                    />
+                    {user.avatar_url ? (
+                        <Image source={{ uri: user.avatar_url }} style={[styles.avatar, { borderWidth: 3, borderColor: colors.bg }]} />
+                    ) : (
+                        <View style={[styles.avatar, { backgroundColor: colors.card, borderWidth: 3, borderColor: colors.bg }]} />
+                    )}
 
                     <View style={[styles.addBadge, { backgroundColor: colors.card, borderColor: colors.bg }]}>
                         <Text style={{ fontSize: 16, fontWeight: "700", color: colors.text }}>＋</Text>
@@ -114,7 +123,7 @@ const styles = StyleSheet.create({
         width: "100%",
         maxWidth: MAX_W,
         paddingHorizontal: H_PAD,
-        paddingBottom: 12,
+        paddingBottom: 0,
         backgroundColor: "transparent",
     },
 
@@ -129,13 +138,23 @@ const styles = StyleSheet.create({
     avatarWrap: {
         position: "relative",
     },
-    avatarRing: {
-        width: AVATAR + 8,
-        height: AVATAR + 8,
-        borderRadius: (AVATAR + 8) / 2,
-        borderWidth: 1,
-        alignItems: "center",
-        justifyContent: "center",
+    avatarNeonBloom: {
+        position: 'absolute',
+        left: -5,
+        top: -5,
+        width: AVATAR + 10,
+        height: AVATAR + 10,
+        borderRadius: (AVATAR + 10) / 2,
+        opacity: 0.22,
+    },
+    avatarNeonRing: {
+        position: 'absolute',
+        left: -2,
+        top: -2,
+        width: AVATAR + 4,
+        height: AVATAR + 4,
+        borderRadius: (AVATAR + 4) / 2,
+        opacity: 1,
     },
     avatar: {
         width: AVATAR,
@@ -204,8 +223,10 @@ const styles = StyleSheet.create({
     handleText: { },
 
     bio: {
-        marginTop: spacing.sm,
-        fontSize: 13,
-        lineHeight: 18,
+        marginTop: spacing.md,
+        marginBottom: spacing.sm,
+        marginLeft: 0,
+        fontSize: 15,
+        lineHeight: 22,
     },
 });

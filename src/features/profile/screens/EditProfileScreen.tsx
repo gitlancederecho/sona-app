@@ -1,6 +1,7 @@
 // src/features/profile/screens/EditProfileScreen.tsx
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -197,9 +198,16 @@ export default function EditProfileScreen() {
                   <Pressable
                     onPress={saveProfile}
                     disabled={savingProfile || !hasProfileChanges || handleStatus === 'checking' || handleStatus === 'invalid' || handleStatus === 'taken'}
-                    style={primaryBtn(colors, savingProfile || !hasProfileChanges)}
+                    style={{ borderRadius: 12, opacity: (savingProfile || !hasProfileChanges || handleStatus === 'checking' || handleStatus === 'invalid' || handleStatus === 'taken') ? 0.6 : 1 }}
                   >
-                    {savingProfile ? <ActivityIndicator /> : <Text style={{ color: colors.textOnAccent, fontWeight: '600' }}>Save Profile</Text>}
+                    <LinearGradient
+                      colors={[colors.accentGradient.from, colors.accentGradient.to]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={{ paddingVertical: 14, borderRadius: 12, alignItems: 'center' }}
+                    >
+                      {savingProfile ? <ActivityIndicator /> : <Text style={{ color: colors.textOnAccent, fontWeight: '600' }}>Save Profile</Text>}
+                    </LinearGradient>
                   </Pressable>
                   <Pressable
                     onPress={changeAvatar}
@@ -226,9 +234,16 @@ export default function EditProfileScreen() {
                   <Pressable
                     onPress={saveEmail}
                     disabled={savingEmail || !emailChanged}
-                    style={primaryBtn(colors, savingEmail || !emailChanged)}
+                    style={{ borderRadius: 12, opacity: (savingEmail || !emailChanged) ? 0.6 : 1 }}
                   >
-                    {savingEmail ? <ActivityIndicator /> : <Text style={{ color: colors.textOnAccent, fontWeight: '600' }}>Save Email</Text>}
+                    <LinearGradient
+                      colors={[colors.accentGradient.from, colors.accentGradient.to]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={{ paddingVertical: 14, borderRadius: 12, alignItems: 'center' }}
+                    >
+                      {savingEmail ? <ActivityIndicator /> : <Text style={{ color: colors.textOnAccent, fontWeight: '600' }}>Save Email</Text>}
+                    </LinearGradient>
                   </Pressable>
                   <Text style={{ fontSize: 12, color: colors.text, opacity: 0.6 }}>Changing email may require confirmation depending on project settings.</Text>
                 </View>
@@ -254,7 +269,6 @@ function inputStyle(colors: any, isDark: boolean) {
 
 function primaryBtn(colors: any, disabled: boolean) {
   return {
-    backgroundColor: colors.accent,
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',
