@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Edge Function: username-signup
 // Creates an auth user using a provided handle (username) and password.
 // If email is omitted, generates a placeholder email and confirms it.

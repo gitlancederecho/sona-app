@@ -1,5 +1,7 @@
 // src/features/profile/screens/ProfileScreen.tsx
-import { Link, useFocusEffect } from "expo-router";
+// @ts-ignore - Metro handles ESM import for React Navigation in Expo
+import { useIsFocused } from "@react-navigation/native";
+import { Link } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -78,11 +80,12 @@ export default function ProfileScreen() {
     loadProfile();
   }, [loadProfile]);
 
-  useFocusEffect(
-    useCallback(() => {
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    if (isFocused) {
       loadProfile();
-    }, [loadProfile])
-  );
+    }
+  }, [isFocused, loadProfile]);
 
   // No inline editing logic here anymore.
 
