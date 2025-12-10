@@ -1,55 +1,24 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { Appearance, useColorScheme } from 'react-native';
-import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { darkPalette, lightPalette } from './tokens';
+import React, { createContext, useContext, useMemo } from 'react';
+import { View } from 'react-native';
+import { darkPalette } from './tokens';
 
-type Mode = 'light' | 'dark';
 type ThemeCtx = {
-  mode: Mode;
-  colors: typeof lightPalette;
-  isDark: boolean;
-  AmbientCrossfade: React.FC<{ children: React.ReactNode }>;
+  colors: typeof darkPalette;
+  isDark: true;
 };
 
 const ThemeContext = createContext<ThemeCtx | null>(null);
 
 export const ThemeModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const scheme = useColorScheme();
-  const [mode, setMode] = useState<Mode>((scheme ?? 'light') as Mode);
+  const colors = darkPalette;
+  const isDark = true;
 
-  useEffect(() => {
-    const sub = Appearance.addChangeListener(({ colorScheme }) => {
-      setMode((colorScheme ?? 'light') as Mode);
-    });
-    return () => sub.remove();
-  }, []);
-
-  useEffect(() => {
-    const h = new Date().getHours();
-    if (h >= 19 || h < 6) setMode('dark');
-  }, []);
-
-  const progress = useSharedValue(mode === 'dark' ? 1 : 0);
-  useEffect(() => {
-    progress.value = withTiming(mode === 'dark' ? 1 : 0, { duration: 600 });
-  }, [mode]);
-
-  const colors = mode === 'dark' ? darkPalette : lightPalette;
-  const isDark = mode === 'dark';
-
-  const AmbientCrossfade: ThemeCtx['AmbientCrossfade'] = useMemo(() => {
-    const Comp: ThemeCtx['AmbientCrossfade'] = ({ children }) => {
-      const style = useAnimatedStyle(() => {
-        const bg = interpolateColor(progress.value, [0, 1], [lightPalette.bg, darkPalette.bg]);
-        return { backgroundColor: bg, flex: 1 };
-      });
-      return <Animated.View style={style}>{children}</Animated.View>;
-    };
-    return Comp;
-  }, []);
-
-  const value = useMemo(() => ({ mode, colors, isDark, AmbientCrossfade }), [mode, colors, isDark, AmbientCrossfade]);
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  const value = useMemo(() => ({ colors, isDark }), [colors, isDark]);
+  return (
+    <ThemeContext.Provider value={value}>
+      <View style={{ flex: 1, backgroundColor: colors.bg }}>{children}</View>
+    </ThemeContext.Provider>
+  );
 };
 
 export const useThemeMode = () => {
