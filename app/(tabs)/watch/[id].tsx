@@ -49,13 +49,16 @@ export default function WatchScreen() {
   const playbackUrl = stream?.playback_url || FALLBACK_HLS_URL;
 
   // Create video player with expo-video
-  // Source updates when playbackUrl changes
-  const player = useVideoPlayer(playbackUrl);
-
-  // Auto-play when player is ready
-  useEffect(() => {
-    player.play();
-  }, [player]);
+  // Recreate player whenever URL changes to ensure source loads
+  const player = useVideoPlayer(playbackUrl, (player) => {
+    try {
+      player.play().catch((e) => {
+        console.error('[watch] Video play error:', e);
+      });
+    } catch (e) {
+      console.error('[watch] Player initialization error:', e);
+    }
+  });
 
   function handleBack() {
     router.back();
@@ -98,7 +101,6 @@ export default function WatchScreen() {
           style={styles.video}
           nativeControls
           allowsFullscreen
-          contentFit="contain"
         />
         {videoLoading && (
           <View style={styles.videoLoadingOverlay}>
