@@ -1,6 +1,7 @@
 // app/(tabs)/watch/[id].tsx
 // Watch screen for playing HLS live streams using expo-video
 
+import Constants from 'expo-constants';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -109,6 +110,14 @@ export default function WatchScreen() {
 
       {/* Stream Info */}
       <View style={[styles.infoContainer, { paddingHorizontal: spacing.lg }]}>
+        {/* Expo Go notice */}
+        {Constants.appOwnership === 'expo' && (
+          <View style={[styles.banner, { borderColor: colors.glassBorder, backgroundColor: colors.surface }]}>
+            <Text style={[styles.bannerText, { color: colors.textSecondary }]}>
+              Video playback requires a Dev Client (expo-video isn’t available in Expo Go).
+            </Text>
+          </View>
+        )}
         {/* Back button */}
         <Pressable onPress={handleBack} style={styles.backButtonTop}>
           <Text style={[styles.backIcon, { color: colors.text }]}>←</Text>
@@ -210,6 +219,16 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 28,
+  },
+  banner: {
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  bannerText: {
+    fontSize: 12,
   },
   playButton: {
     alignSelf: 'flex-start',
