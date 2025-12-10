@@ -10,8 +10,8 @@ import { getStreamById, Stream } from 'src/lib/api/streams';
 import { useThemeMode } from 'src/theme/ThemeModeProvider';
 import { spacing } from 'src/theme/tokens';
 
-// Fallback test HLS stream (Big Buck Bunny - public domain, Google hosted)
-const FALLBACK_HLS_URL = 'https://commondatastorage.googleapis.com/gtv-videos-library/sample/BigBuckBunny.m3u8';
+// Fallback test HLS stream (Mux public demo, widely compatible)
+const FALLBACK_HLS_URL = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
 
 export default function WatchScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -52,9 +52,7 @@ export default function WatchScreen() {
   // Recreate player whenever URL changes to ensure source loads
   const player = useVideoPlayer(playbackUrl, (player) => {
     try {
-      player.play().catch((e) => {
-        console.error('[watch] Video play error:', e);
-      });
+      player.play();
     } catch (e) {
       console.error('[watch] Player initialization error:', e);
     }
@@ -114,6 +112,20 @@ export default function WatchScreen() {
         {/* Back button */}
         <Pressable onPress={handleBack} style={styles.backButtonTop}>
           <Text style={[styles.backIcon, { color: colors.text }]}>←</Text>
+        </Pressable>
+
+        {/* Manual play control (helps on iOS/Expo Go) */}
+        <Pressable
+          onPress={() => {
+            try {
+              player.play();
+            } catch (e) {
+              console.error('[watch] manual play error:', e);
+            }
+          }}
+          style={[styles.playButton, { borderColor: colors.glassBorder }]}
+        >
+          <Text style={[styles.playButtonText, { color: colors.text }]}>Play</Text>
         </Pressable>
 
         {/* Stream title */}
@@ -198,6 +210,18 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 28,
+  },
+  playButton: {
+    alignSelf: 'flex-start',
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  playButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
   liveBadge: {
     alignSelf: 'flex-start',
