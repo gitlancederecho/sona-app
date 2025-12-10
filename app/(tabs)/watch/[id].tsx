@@ -10,8 +10,8 @@ import { getStreamById, Stream } from 'src/lib/api/streams';
 import { useThemeMode } from 'src/theme/ThemeModeProvider';
 import { spacing } from 'src/theme/tokens';
 
-// Fallback test HLS stream (Sintel short film)
-const FALLBACK_HLS_URL = 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8';
+// Fallback test HLS stream (Big Buck Bunny - public domain, Google hosted)
+const FALLBACK_HLS_URL = 'https://commondatastorage.googleapis.com/gtv-videos-library/sample/BigBuckBunny.m3u8';
 
 export default function WatchScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -21,6 +21,7 @@ export default function WatchScreen() {
   const [stream, setStream] = useState<Stream | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [videoLoading, setVideoLoading] = useState(false);
 
   const loadStream = useCallback(async () => {
     if (!id) {
@@ -48,9 +49,13 @@ export default function WatchScreen() {
   const playbackUrl = stream?.playback_url || FALLBACK_HLS_URL;
 
   // Create video player with expo-video
-  const player = useVideoPlayer(playbackUrl, (player) => {
+  // Source updates when playbackUrl changes
+  const player = useVideoPlayer(playbackUrl);
+
+  // Auto-play when player is ready
+  useEffect(() => {
     player.play();
-  });
+  }, [player]);
 
   function handleBack() {
     router.back();
@@ -93,7 +98,13 @@ export default function WatchScreen() {
           style={styles.video}
           nativeControls
           allowsFullscreen
+          contentFit="contain"
         />
+        {videoLoading && (
+          <View style={styles.videoLoadingOverlay}>
+            <ActivityIndicator size="large" color={colors.accentPrimary} />
+          </View>
+        )}
       </View>
 
       {/* Stream Info */}
@@ -159,10 +170,21 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 16 / 9,
     backgroundColor: '#000',
+    position: 'relative',
   },
   video: {
     width: '100%',
     height: '100%',
+  },
+  videoLoadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   infoContainer: {
     flex: 1,
