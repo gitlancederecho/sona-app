@@ -2,7 +2,7 @@
 // Watch screen for playing HLS live streams using expo-video
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useVideoPlayer } from 'expo-video';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
