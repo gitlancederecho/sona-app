@@ -11,9 +11,9 @@ const ThemeContext = createContext<ThemeCtx | null>(null);
 
 export const ThemeModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const colors = darkPalette;
-  const isDark = true;
+  const isDark = true as const;
 
-  const value = useMemo(() => ({ colors, isDark }), [colors, isDark]);
+  const value = useMemo(() => ({ colors, isDark }), [colors]);
   return (
     <ThemeContext.Provider value={value}>
       <View style={{ flex: 1, backgroundColor: colors.bg }}>{children}</View>

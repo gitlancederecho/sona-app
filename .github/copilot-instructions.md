@@ -58,18 +58,17 @@
 ### 9. Creative philosophy & design language (addendum)
 
 - **Design vision:** Apple-inspired *liquid glass* aesthetic — minimal, translucent, calm. Interface should feel like a native iOS environment: restrained color palette, crisp typography, and balanced spacing.  
-- **Principle:** “What would Steve Jobs do?” — prioritize simplicity, legibility, and focus. No clutter, no heavy gradients, no gratuitous decoration.  
+- **Principle:** "What would Steve Jobs do?" — prioritize simplicity, legibility, and focus. No clutter, no heavy gradients, no gratuitous decoration.  
 - **Core look:** subtle blur layers, light diffusion, and motion depth (using opacity, not shadows).  
 - **Layout grid:** 16-pt spacing rhythm, `maxWidth 640`, respect SafeArea insets on all devices.  
-   - **Theme:** defined in `src/theme/tokens.ts` and `ThemeModeProvider.tsx` — always use `colors.bg`, `colors.text`, `colors.card`, and the accent tokens (`colors.accentGradient` or `colors.accentPrimary`) instead of hard-coded values.  
-- **Glass components:** `GlassCard`, `GlassPill`, and `GlassInput` are the canonical primitives for the “liquid” design language. Extend them instead of re-implementing blur views.  
+- **Theme:** SONA is **dark-only** by design. Defined in `src/theme/tokens.ts` and `ThemeModeProvider.tsx` — always use `colors.bg`, `colors.text`, `colors.card`, and the accent tokens (`colors.accentGradient` or `colors.accentPrimary`) instead of hard-coded values. The app does not follow device appearance settings and is always rendered in dark mode to preserve the stage-like, cinematic experience.
+- **Glass components:** `GlassCard`, `GlassPill`, and `GlassInput` are the canonical primitives for the "liquid" design language. Extend them instead of re-implementing blur views.
 
 ### 10. Active branches & continuity
 
-- **feat/ui-liquid-glass-hero** — current focus branch. Implements the Instagram-style profile hero, adaptive theme, and balanced spacing.  
-- **feat/liquid-glass-signin** — upcoming branch to apply the glass pattern to authentication screens.  
-- **Merge target:** `main` after visual consistency pass, then proceed to MVP “Moments” feed.  
-- **Keep philosophy consistent:** all future components should feel Apple-grade clean — every screen should align visually to the same grid and blur depth.  
+- **feat/ui-glass-sweep** — current focus branch. Implements the Instagram-style profile hero, violet→amber gradient accent system, neon avatar ring, and dark-only theme enforcement.  
+- **Merge target:** `main` after visual consistency pass, then proceed to MVP "Moments" feed.  
+- **Keep philosophy consistent:** all future components should feel Apple-grade clean — every screen should align visually to the same grid and blur depth.
 
 ### 11. Documentation & context files
 

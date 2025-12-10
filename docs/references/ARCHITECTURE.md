@@ -93,6 +93,17 @@ sona/
 SONA uses a **single source of visual truth** --- /src/theme/.\
 No screen or component may define its own color, font size, or radius.
 
+**Theme**
+
+SONA is **dark-only** by design.
+
+- Base: deep charcoal `#111111`
+- Surfaces: subtle glass panels using low-opacity white on top of black
+- Text: high-contrast off-white for primary, soft gray for secondary
+- Accent: single violet → amber gradient used for primary actions and live states
+
+The app does **not** follow the device light/dark setting. SONA is always rendered in its own dark theme to preserve the stage-like, cinematic experience.
+
   ---------------------------------------------------------------------------------
   **Token**        **File**        **Rule**
   ---------------- --------------- ------------------------------------------------
