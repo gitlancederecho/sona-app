@@ -1,9 +1,9 @@
 // app/(tabs)/watch/[id].tsx
-// Watch screen for playing HLS live streams
+// Watch screen for playing HLS live streams using expo-video
 
-import { AVPlaybackStatus, ResizeMode, Video } from 'expo-av';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useVideoPlayer } from 'expo-video';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getStreamById, Stream } from 'src/lib/api/streams';
@@ -18,11 +18,9 @@ export default function WatchScreen() {
   const { colors } = useThemeMode();
   const router = useRouter();
 
-  const videoRef = useRef<Video>(null);
   const [stream, setStream] = useState<Stream | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   const loadStream = useCallback(async () => {
     if (!id) {
@@ -49,11 +47,10 @@ export default function WatchScreen() {
 
   const playbackUrl = stream?.playback_url || FALLBACK_HLS_URL;
 
-  const onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
-    if (status.isLoaded) {
-      setIsPlaying(status.isPlaying);
-    }
-  };
+  // Create video player with expo-video
+  const player = useVideoPlayer(playbackUrl, (player) => {
+    player.play();
+  });
 
   function handleBack() {
     router.back();
@@ -91,14 +88,11 @@ export default function WatchScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={['top']}>
       {/* Video Player */}
       <View style={styles.videoContainer}>
-        <Video
-          ref={videoRef}
-          source={{ uri: playbackUrl }}
+        <VideoView
+          player={player}
           style={styles.video}
-          useNativeControls
-          resizeMode={ResizeMode.CONTAIN}
-          shouldPlay
-          onPlaybackStatusUpdate={onPlaybackStatusUpdate}
+          nativeControls
+          allowsFullscreen
         />
       </View>
 
