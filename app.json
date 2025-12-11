@@ -16,8 +16,10 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "We need access to your photos to set your profile picture."
-      }
+        "NSPhotoLibraryUsageDescription": "We need access to your photos to set your profile picture.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "bundleIdentifier": "com.lancederecho.sona"
     },
     "android": {
       "adaptiveIcon": {
@@ -37,6 +39,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3d6f2e89-762a-4000-b20a-5575d6febd60"
+      }
     }
   }
 }
