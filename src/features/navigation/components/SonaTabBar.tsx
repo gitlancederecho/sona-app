@@ -34,7 +34,7 @@ export default function SonaTabBar({ state, descriptors, navigation }: any) {
           },
         ]}
       >
-        {state.routes.map((route, index) => {
+        {state.routes.map((route: any, index: number) => {
           const isFocused = state.index === index;
           const onPress = () => {
             const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
