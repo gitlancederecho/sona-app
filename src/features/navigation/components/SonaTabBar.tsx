@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -26,14 +27,15 @@ export default function SonaTabBar({ state, descriptors, navigation }: any) {
     <View pointerEvents="box-none" style={[styles.root, { paddingBottom: Math.max(insets.bottom, 12) }] }>
       <View
         style={[
-          styles.pill,
+          styles.pillWrapper,
           {
-            backgroundColor: colors.glassTint,
             borderColor: colors.glassBorder,
             shadowColor: (shadow.card as any).shadowColor,
           },
         ]}
       >
+        <BlurView intensity={25} tint="dark" style={StyleSheet.absoluteFill} />
+        <View style={[styles.pill, { backgroundColor: colors.glassTint }]}>
         {state.routes.map((route: any, index: number) => {
           const isFocused = state.index === index;
           const onPress = () => {
@@ -82,6 +84,7 @@ export default function SonaTabBar({ state, descriptors, navigation }: any) {
             </Pressable>
           );
         })}
+        </View>
       </View>
     </View>
   );
@@ -104,7 +107,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 8,
     borderRadius: radius.xl,
+  },
+  pillWrapper: {
+    borderRadius: radius.xl,
     borderWidth: 1,
+    overflow: 'hidden',
     marginBottom: 8,
     // subtle shadow (from tokens)
     ...(shadow.card as any),
