@@ -1,10 +1,10 @@
-import React from 'react';
-import { View, Pressable, Text, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import React from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeMode } from 'src/theme/ThemeModeProvider';
-import { radius, spacing, shadow } from 'src/theme/tokens';
+import { radius, shadow, spacing } from 'src/theme/tokens';
 
 const labels: Record<string, string> = {
   index: 'Home',
@@ -25,14 +25,14 @@ export default function SonaTabBar({ state, descriptors, navigation }: BottomTab
   return (
     <View pointerEvents="box-none" style={[styles.root, { paddingBottom: Math.max(insets.bottom, 12) }] }>
       <View
-        style=[
+        style={[
           styles.pill,
           {
             backgroundColor: colors.card,
             borderColor: colors.glassBorder,
             shadowColor: (shadow.card as any).shadowColor,
           },
-        ]
+        ]}
       >
         {state.routes.map((route, index) => {
           const isFocused = state.index === index;
