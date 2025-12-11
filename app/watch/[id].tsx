@@ -1,5 +1,5 @@
-// app/(tabs)/watch/[id].tsx
-// Watch screen for playing HLS live streams using expo-video
+// app/watch/[id].tsx
+// Watch screen (moved out of tabs) for playing HLS live streams using expo-video
 
 import Constants from 'expo-constants';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -11,7 +11,6 @@ import { getStreamById, Stream } from 'src/lib/api/streams';
 import { useThemeMode } from 'src/theme/ThemeModeProvider';
 import { spacing } from 'src/theme/tokens';
 
-// Fallback test HLS stream (Mux public demo, widely compatible)
 const FALLBACK_HLS_URL = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
 
 export default function WatchScreen() {
@@ -49,8 +48,6 @@ export default function WatchScreen() {
 
   const playbackUrl = stream?.playback_url || FALLBACK_HLS_URL;
 
-  // Create video player with expo-video
-  // Recreate player whenever URL changes to ensure source loads
   const player = useVideoPlayer(playbackUrl, (player) => {
     try {
       player.play();
@@ -93,7 +90,6 @@ export default function WatchScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={['top']}>
-      {/* Video Player */}
       <View style={styles.videoContainer}>
         <VideoView
           player={player}
@@ -108,22 +104,18 @@ export default function WatchScreen() {
         )}
       </View>
 
-      {/* Stream Info */}
       <View style={[styles.infoContainer, { paddingHorizontal: spacing.lg }]}>
-        {/* Expo Go notice */}
         {Constants.appOwnership === 'expo' && (
           <View style={[styles.banner, { borderColor: colors.glassBorder, backgroundColor: colors.surface }]}>
-            <Text style={[styles.bannerText, { color: colors.textSecondary }]}>
+            <Text style={[styles.bannerText, { color: colors.textSecondary }]}> 
               Video playback requires a Dev Client (expo-video isn’t available in Expo Go).
             </Text>
           </View>
         )}
-        {/* Back button */}
         <Pressable onPress={handleBack} style={styles.backButtonTop}>
           <Text style={[styles.backIcon, { color: colors.text }]}>←</Text>
         </Pressable>
 
-        {/* Manual play control (helps on iOS/Expo Go) */}
         <Pressable
           onPress={() => {
             try {
@@ -137,7 +129,6 @@ export default function WatchScreen() {
           <Text style={[styles.playButtonText, { color: colors.text }]}>Play</Text>
         </Pressable>
 
-        {/* Stream title */}
         <View style={{ marginTop: spacing.lg }}>
           <View style={[styles.liveBadge, { backgroundColor: colors.accentPrimary }]}>
             <Text style={[styles.liveText, { color: colors.textOnAccent }]}>● LIVE</Text>
@@ -145,8 +136,7 @@ export default function WatchScreen() {
 
           <Text style={[styles.title, { color: colors.text }]}>{stream?.title || 'Untitled Stream'}</Text>
 
-          {/* Placeholder for future features */}
-          <Text style={[styles.placeholder, { color: colors.textSecondary }]}>
+          <Text style={[styles.placeholder, { color: colors.textSecondary }]}> 
             Viewer count, chat, and tipping coming soon.
           </Text>
         </View>
@@ -156,112 +146,25 @@ export default function WatchScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-  },
-  loadingText: {
-    marginTop: spacing.md,
-    fontSize: 16,
-  },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: spacing.sm,
-  },
-  errorMessage: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: spacing.lg,
-  },
-  backButton: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  backButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  videoContainer: {
-    width: '100%',
-    aspectRatio: 16 / 9,
-    backgroundColor: '#000',
-    position: 'relative',
-  },
-  video: {
-    width: '100%',
-    height: '100%',
-  },
-  videoLoadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  infoContainer: {
-    flex: 1,
-    paddingTop: spacing.md,
-  },
-  backButtonTop: {
-    alignSelf: 'flex-start',
-    padding: spacing.sm,
-  },
-  backIcon: {
-    fontSize: 28,
-  },
-  banner: {
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  bannerText: {
-    fontSize: 12,
-  },
-  playButton: {
-    alignSelf: 'flex-start',
-    marginTop: spacing.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: 8,
-    borderWidth: 1,
-  },
-  playButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  liveBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: 999,
-    marginBottom: spacing.sm,
-  },
-  liveText: {
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    lineHeight: 32,
-    marginBottom: spacing.sm,
-  },
-  placeholder: {
-    fontSize: 14,
-    fontStyle: 'italic',
-  },
+  container: { flex: 1 },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: spacing.lg },
+  loadingText: { marginTop: spacing.md, fontSize: 16 },
+  errorTitle: { fontSize: 20, fontWeight: '700', marginBottom: spacing.sm },
+  errorMessage: { fontSize: 14, textAlign: 'center', marginBottom: spacing.lg },
+  backButton: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 12, borderWidth: 1 },
+  backButtonText: { fontSize: 16, fontWeight: '600' },
+  videoContainer: { width: '100%', aspectRatio: 16 / 9, backgroundColor: '#000', position: 'relative' },
+  video: { width: '100%', height: '100%' },
+  videoLoadingOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' },
+  infoContainer: { flex: 1, paddingTop: spacing.md },
+  backButtonTop: { alignSelf: 'flex-start', padding: spacing.sm },
+  backIcon: { fontSize: 28 },
+  banner: { borderWidth: 1, borderRadius: 10, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, marginBottom: spacing.md },
+  bannerText: { fontSize: 12 },
+  playButton: { alignSelf: 'flex-start', marginTop: spacing.sm, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderRadius: 8, borderWidth: 1 },
+  playButtonText: { fontSize: 14, fontWeight: '600' },
+  liveBadge: { alignSelf: 'flex-start', paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 999, marginBottom: spacing.sm },
+  liveText: { fontSize: 12, fontWeight: '700', letterSpacing: 0.5 },
+  title: { fontSize: 24, fontWeight: '700', lineHeight: 32, marginBottom: spacing.sm },
+  placeholder: { fontSize: 14, fontStyle: 'italic' },
 });
