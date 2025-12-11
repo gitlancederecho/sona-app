@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,7 +17,8 @@ const icons: Record<string, { active: keyof typeof Ionicons.glyphMap; inactive: 
   profile: { active: 'person', inactive: 'person-outline' },
 };
 
-export default function SonaTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+// Avoid importing types from '@react-navigation/bottom-tabs' to prevent runtime/module resolution issues.
+export default function SonaTabBar({ state, descriptors, navigation }: any) {
   const insets = useSafeAreaInsets();
   const { colors } = useThemeMode();
 
