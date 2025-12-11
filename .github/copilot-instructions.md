@@ -103,4 +103,40 @@ When building new features or refactoring code, **assume these reference documen
 ---
 
 
+### 14. Branch & Workflow Guardrails (MANDATORY for Copilot)
+
+Before generating ANY code, Copilot must:
+
+1. Check the current Git branch using `git rev-parse --abbrev-ref HEAD`.
+2. Confirm whether this is the correct branch for the requested feature.
+
+Rules:
+- If we are still on a previous feature branch (for example `feat/phase4-hls-playback`), Copilot must STOP and explicitly tell the user:
+   “You are on <branch>. This feature belongs on <correct-branch>. Should I switch branches or create a new one?”
+- Copilot must NEVER create files or write code on the wrong branch.
+
+For every new task, Copilot must:
+- Identify whether this task should be done on the current branch or on a new feature branch.
+- If a new branch is needed, instruct:
+   - `git checkout main`
+   - `git pull origin main`
+   - `git checkout -b feat/<task-name>`
+
+Dev Workflow (must be followed):
+- `main` = production
+- `dev` = integration
+- `feature/<name>` = short-lived work branches
+
+Structural confirmations:
+- Copilot is NOT allowed to generate migrations, screens, or folders without confirming:
+   • the correct branch  
+   • the repo structure under `/app`, `/src/features`, `/src/lib/api`, `/src/theme` as defined in `PROJECT_STRUCTURE_GUIDE.md`, Dev Workflow, and Design Bible.
+- If Copilot detects any missing folders or files, it must notify the user instead of inventing structure.
+
+Always reference these architectural anchors before outputting any code:
+- `/src/theme/tokens.ts`
+- `/src/lib/api/*`
+- `/src/features/<feature>/screens/*`
+
+
    If anything here is unclear or you want more examples (e.g. preferred test harnesses, how we run DB migrations), tell me which sections to expand and I will iterate.
