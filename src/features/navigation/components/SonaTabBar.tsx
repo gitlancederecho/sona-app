@@ -28,7 +28,7 @@ export default function SonaTabBar({ state, descriptors, navigation }: any) {
         style={[
           styles.pill,
           {
-            backgroundColor: colors.card,
+            backgroundColor: colors.glassTint,
             borderColor: colors.glassBorder,
             shadowColor: (shadow.card as any).shadowColor,
           },
@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: radius.xl,
     borderWidth: 1,
+    marginBottom: 8,
     // subtle shadow (from tokens)
     ...(shadow.card as any),
   },

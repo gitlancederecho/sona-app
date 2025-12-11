@@ -19,7 +19,7 @@ export default function LiveCard({ id, title }: Props) {
   const router = useRouter();
 
   function handlePress() {
-    router.push(`/(tabs)/watch/${id}`);
+    router.push(`/watch/${id}`);
   }
 
   return (

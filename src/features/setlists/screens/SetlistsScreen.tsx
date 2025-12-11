@@ -32,15 +32,15 @@ export default function SetlistsScreen() {
   useEffect(() => { load(); }, [load]);
 
   function openCreate() {
-    router.push('/(tabs)/setlists/edit');
+    router.push('/setlists/edit');
   }
 
   function openStage(id: string) {
-    router.push(`/(tabs)/setlists/stage/${id}`);
+    router.push(`/setlists/stage/${id}`);
   }
 
   function openEdit(id: string) {
-    router.push(`/(tabs)/setlists/edit/${id}`);
+    router.push(`/setlists/edit/${id}`);
   }
 
   if (!user) return null;
